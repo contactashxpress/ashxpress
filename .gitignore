@@ -1,8 +1,13 @@
 .venv/
 venv/
 .env
+env/
+.env.local
 *.pyc
 __pycache__/
 db.sqlite3
-*logs
+*.sqlite3
+*.pyo
+*.log
 .idea/
+.vscode/
