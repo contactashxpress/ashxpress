@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% load socialaccount %}
+
+{% block title %}Inscription - Créez votre compte | Ashxpress{% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/inscription.css' %}"> {% endblock %}
+
+<div class="register-card-center">
+    <div class="password-card" role="main" itemprop="mainContentOfPage">
+        <div class="card-header">
+            <h1 itemprop="name">{% trans "Créez votre compte" %}</h1>
+            <p>{% trans "Rejoignez notre communauté exclusive" %}</p>
+        </div>
+        <div class="card-body">
+            <form method="post" itemscope itemtype="https://schema.org/RegisterAction">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="form-messages" role="alert" aria-live="assertive">
+                    {% for error in form.non_field_errors %}
+                    <div class="alert alert-error" data-delay="10000" role="alert">
+                        <span class="material-icons-round message-icon" aria-hidden="true">error</span>
+                        <span class="message-text">{{ error }}</span>
+                        <button class="close-message" aria-label="Fermer le message d'erreur">&times;</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">{% trans form.username.label %}</label>
+                    <div class="input-field">
+                        <i class="material-icons-round" aria-hidden="true">person</i>
+                        <input
+                            type="text"
+                            name="{{ form.username.name }}"
+                            id="{{ form.username.id_for_label }}"
+                            class="form-control"
+                            placeholder="{% trans form.username.field.widget.attrs.placeholder %}"
+                            required
+                            value="{{ form.username.value|default_if_none:'' }}"
+                            autocomplete="username"
+                            aria-describedby="username-help"
+                        >
+                    </div>
+                    {% if form.username.errors %}
+                    <div class="error-message" role="alert">
+                        <i class="material-icons-round" aria-hidden="true">error</i>
+                        <span>{{ form.username.errors.0 }}</span>
+                    </div>
+                    {% endif %}
+                    <div id="username-help" class="help-text" style="display: none;">
+                        {% trans "Votre nom d'utilisateur doit être unique et contenir entre 3 et 150 caractères." %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">{% trans form.email.label %}</label>
+                    <div class="input-field">
+                        <i class="material-icons-round" aria-hidden="true">email</i>
+                        <input
+                            type="email"
+                            name="{{ form.email.name }}"
+                            id="{{ form.email.id_for_label }}"
+                            class="form-control"
+                            placeholder="{% trans form.email.field.widget.attrs.placeholder %}"
+                            required
+                            value="{{ form.email.value|default_if_none:'' }}"
+                            autocomplete="email"
+                            aria-describedby="email-help"
+                        >
+                    </div>
+                    {% if form.email.errors %}
+                    <div class="error-message" role="alert">
+                        <i class="material-icons-round" aria-hidden="true">error</i>
+                        <span>{{ form.email.errors.0 }}</span>
+                    </div>
+                    {% endif %}
+                    <div id="email-help" class="help-text" style="display: none;">
+                        {% trans "Nous utiliserons cet email pour vous envoyer des confirmations et des communications importantes." %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password1.id_for_label }}">{% trans form.password1.label %}</label>
+                    <div class="input-field">
+                        <i class="material-icons-round" aria-hidden="true">lock</i>
+                        <input
+                            type="password"
+                            name="{{ form.password1.name }}"
+                            id="{{ form.password1.id_for_label }}"
+                            class="form-control"
+                            placeholder="{% trans form.password1.field.widget.attrs.placeholder %}"
+                            required
+                            autocomplete="new-password"
+                            aria-describedby="password-help"
+                        >
+                    </div>
+                    {% if form.password1.errors %}
+                    <div class="error-message" role="alert">
+                        <i class="material-icons-round" aria-hidden="true">error</i>
+                        <span>{{ form.password1.errors.0 }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="password-strength">
+                        <div class="strength-bar" id="strength-bar" aria-hidden="true"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password2.id_for_label }}">{% trans form.password2.label %}</label>
+                    <div class="input-field">
+                        <i class="material-icons-round" aria-hidden="true">lock_reset</i>
+                        <input
+                            type="password"
+                            name="{{ form.password2.name }}"
+                            id="{{ form.password2.id_for_label }}"
+                            class="form-control"
+                            placeholder="{% trans form.password2.field.widget.attrs.placeholder %}"
+                            required
+                            autocomplete="new-password"
+                            aria-describedby="confirm-password-help"
+                        >
+                    </div>
+                    {% if form.password2.errors %}
+                    <div class="error-message" role="alert">
+                        <i class="material-icons-round" aria-hidden="true">error</i>
+                        <span>{{ form.password2.errors.0 }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="submit-btn" itemprop="potentialAction" itemscope itemtype="https://schema.org/Action">
+                    <span class="material-icons-round" style="margin-right: 8px;" aria-hidden="true">how_to_reg</span>
+                    {% trans "S'inscrire maintenant" %}
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>{% trans "ou" %}</span>
+            </div>
+
+            {% get_providers as socialaccount_providers %}
+            {% if socialaccount_providers %}
+                {% for provider in socialaccount_providers %}
+                    <a href="{% provider_login_url provider.id %}" class="social-btn google-btn" aria-label="S'inscrire avec Google">
+                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="google-icon" aria-hidden="true" focusable="false">
+                            <g>
+                                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                                <path fill="none" d="M0 0h48v48H0z"></path>
+                            </g>
+                        </svg>
+                        {% trans "S'inscrire avec Google" %}
+                    </a>
+                {% endfor %}
+            {% endif %}
+
+            {% url 'connexion' as url_connexion %}
+            <p class="footer-text">
+                {% blocktrans %}Déjà membre ? <a href="{{ url_connexion }}" itemprop="relatedLink">Connectez-vous</a>{% endblocktrans %}
+            </p>
+        </div>
+    </div>
+</div>
+{% block extra_js %}<script src="{% static 'js/inscription.js' %}"></script> {% endblock %}
+{% endblock %}

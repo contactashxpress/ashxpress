@@ -1,0 +1,165 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Bienvenue sur Ashxpress !" %}</title>
+    {% block extra_css %}<link rel="stylesheet" href="{% static 'css/welcome_email.css' %}"> {% endblock %}
+
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f7fa; color: #333333;">
+    <center>
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#f5f7fa">
+            <tr>
+                <td align="center" style="padding: 40px 0;">
+                    <!-- Container principal -->
+                    <table border="0" cellpadding="0" cellspacing="0" width="600" class="container">
+                        <!-- En-tête avec logo -->
+                        <tr>
+                            <td align="center" class="header">
+                                <img src="https://www.ashxpress.com/static/images/logo-email.png" alt="Ashxpress" class="logo" style="display: block; max-width: 200px;">
+                                <h1 style="color: #ffffff; margin: 30px 0 0 0; font-size: 28px; font-weight: bold;">
+                                    🎉 {% trans "Bienvenue à bord !" %}
+                                </h1>
+                            </td>
+                        </tr>
+
+                        <!-- Contenu principal -->
+                        <tr>
+                            <td bgcolor="#ffffff" class="content" style="padding: 40px 30px;">
+                                <!-- Message de bienvenue personnalisé -->
+                                <h2 style="color: #3a0ca3; margin-top: 0; font-size: 24px; text-align: center;">
+                                    {% blocktrans with first_name=user.first_name|default:user.username %}
+                                    Bienvenue {{ first_name }} !
+                                    {% endblocktrans %}
+                                </h2>
+
+                                <p style="margin: 20px 0; font-size: 16px; line-height: 1.6; text-align: center;">
+                                    {% trans "Toute l'équipe Ashxpress est ravie de vous accueillir ! Votre compte a été créé avec succès." %}
+                                </p>
+
+                                <!-- Carte de bienvenue -->
+                                <div class="welcome-card">
+                                    <div class="icon">✨</div>
+                                    <h3 style="margin: 0 0 15px 0; color: #3a0ca3;">{% trans "Votre aventure shopping commence maintenant !" %}</h3>
+                                    <p style="margin: 0; font-size: 16px;">
+                                        {% trans "Découvrez des milliers de produits soigneusement sélectionnés pour vous." %}
+                                    </p>
+                                </div>
+
+                                <!-- Badge offre de bienvenue -->
+                                <div class="offer-badge">
+                                    🎁 {% trans "OFFERT : Livraison gratuite sur votre 1ère commande !" %}
+                                </div>
+
+                                <!-- Grille des avantages -->
+                                <div class="features-grid">
+                                    <div class="feature-card">
+                                        <div class="icon">🚚</div>
+                                        <h4 style="margin: 0 0 10px 0; color: #3a0ca3;">{% trans "Livraison Rapide" %}</h4>
+                                        <p style="margin: 0; font-size: 14px;">
+                                            {% trans "Expédition sous 24h et livraison express disponible" %}
+                                        </p>
+                                    </div>
+
+                                    <div class="feature-card">
+                                        <div class="icon">🛡️</div>
+                                        <h4 style="margin: 0 0 10px 0; color: #3a0ca3;">{% trans "Paiement Sécurisé" %}</h4>
+                                        <p style="margin: 0; font-size: 14px;">
+                                            {% trans "Transactions cryptées et protection des données" %}
+                                        </p>
+                                    </div>
+
+                                    <div class="feature-card">
+                                        <div class="icon">⭐</div>
+                                        <h4 style="margin: 0 0 10px 0; color: #3a0ca3;">{% trans "Produits Qualité" %}</h4>
+                                        <p style="margin: 0; font-size: 14px;">
+                                            {% trans "Articles soigneusement sélectionnés et vérifiés" %}
+                                        </p>
+                                    </div>
+
+                                    <div class="feature-card">
+                                        <div class="icon">🤝</div>
+                                        <h4 style="margin: 0 0 10px 0; color: #3a0ca3;">{% trans "Support 7j/7" %}</h4>
+                                        <p style="margin: 0; font-size: 14px;">
+                                            {% trans "Notre équipe vous assiste à tout moment" %}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Bouton d'action principal -->
+                                <div style="text-align: center; margin: 40px 0;">
+                                    <a href="{{ request.scheme }}://{{ request.get_host }}{% url 'index' %}" class="button">
+                                        🛍️ {% trans "Explorer la boutique" %}
+                                    </a>
+                                </div>
+
+                                <!-- Section découverte -->
+                                <div style="background: #f0f9ff; padding: 25px; border-radius: 12px; margin: 30px 0;">
+                                    <h3 style="margin-top: 0; color: #0369a1; text-align: center;">🌟 {% trans "Commencez par découvrir" %}</h3>
+                                    <div style="text-align: center;">
+                                        <a href="#" style="color: #4361ee; text-decoration: none; margin: 0 15px;">
+                                            🆕 {% trans "Nouveautés" %}
+                                        </a>
+                                        <a href="#" style="color: #4361ee; text-decoration: none; margin: 0 15px;">
+                                            🔥 {% trans "Best-sellers" %}
+                                        </a>
+                                        <a href="#" style="color: #4361ee; text-decoration: none; margin: 0 15px;">
+                                            💰 {% trans "Promotions" %}
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Application mobile -->
+                                <div style="background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%); padding: 25px; border-radius: 12px; color: white; text-align: center; margin: 30px 0;">
+                                    <h3 style="margin-top: 0; color: white;">📱 {% trans "Téléchargez notre app mobile" %}</h3>
+                                    <p style="margin: 15px 0; font-size: 16px;">
+                                        {% trans "Commandez encore plus facilement depuis votre smartphone" %}
+                                    </p>
+                                    <div>
+                                        <a href="#" style="display: inline-block; margin: 0 10px;">
+                                            <img src="https://www.ashxpress.com/static/images/app-store-badge.png" alt="App Store" style="height: 40px;">
+                                        </a>
+                                        <a href="#" style="display: inline-block; margin: 0 10px;">
+                                            <img src="https://www.ashxpress.com/static/images/google-play-badge.png" alt="Google Play" style="height: 40px;">
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Pied de page -->
+                        <tr>
+                            <td bgcolor="#f8f9fa" class="footer" style="padding: 30px 20px;">
+                                <p style="margin: 0 0 20px 0; font-size: 14px; color: #666666;">
+                                    {% trans "Merci de nous rejoindre. Nous sommes impatients de vous accompagner dans toutes vos envies shopping !" %}
+                                </p>
+
+                                <!-- Réseaux sociaux -->
+                                <div style="margin: 20px 0;">
+                                    <span style="font-weight: bold; color: #3a0ca3;">{% trans "Suivez-nous :" %}</span>
+                                    <a href="https://facebook.com/ashxpress" style="color: #4361ee; text-decoration: none; margin: 0 10px;">Facebook</a>
+                                    <a href="https://instagram.com/ashxpress" style="color: #4361ee; text-decoration: none; margin: 0 10px;">Instagram</a>
+                                    <a href="https://twitter.com/ashxpress" style="color: #4361ee; text-decoration: none; margin: 0 10px;">Twitter</a>
+                                </div>
+
+                                <p style="margin: 15px 0; font-size: 12px; color: #666666;">
+                                    © {% now "Y" %} Ashxpress. {% trans "Tous droits réservés." %}<br>
+                                    📧 support@ashxpress.com • 📞 +228 99 03 47 47
+                                </p>
+
+                                <p style="margin: 0; font-size: 11px; color: #999999;">
+                                    <a href="https://www.ashxpress.com/unsubscribe" style="color: #999999; text-decoration: underline;">
+                                        {% trans "Gérer mes préférences d'emails" %}
+                                    </a>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </center>
+</body>
+</html>

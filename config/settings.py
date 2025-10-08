@@ -12,21 +12,41 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+from decimal import Decimal
+from pathlib import Path
+import datetime
+import os
+import environ
+from django.contrib.messages import constants as messages
+from django.urls import reverse_lazy
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env(
+    # Définissez ici les types et les valeurs par défaut de vos variables
+    DEBUG=(bool, False)
+)
+
+# Lecture du fichier .env
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+# Lecture du fichier .env
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-u=ou+v-3&h&e0a$&=)rbw53dih0vd_n+f)-3!tbx8x-oqa-6mo'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+DEBUG = env('DEBUG')
 
+ALLOWED_HOSTS = ['127.0.0.1']
+SITE_URL = 'http://127.0.0.1:8000'
 
 # Application definition
 
@@ -37,6 +57,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts',
+    # Gestion de django-allauth
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # Allauth providers "Google"
+    'allauth.socialaccount.providers.google',
+    # Gestion de django-axes
+    'axes',
+    'store',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +78,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Gestion de django-axes
+    'axes.middleware.AxesMiddleware',
+    # Gestion de django allauth
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -54,7 +89,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -72,13 +107,20 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# --- Configuration de la base de données ---
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': env('DB_ENGINE'),
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
     }
-}
 
+}
+# --- Fin de la configuration ---
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -102,7 +144,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr-FR'
 
 TIME_ZONE = 'UTC'
 
@@ -115,8 +157,116 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = "accounts.User"
+#MEDIA_URL = "/media/"
+#MEDIA_ROOT = BASE_DIR / "media"
+
+
+# Gestion d'url de retour par @login_required
+#LOGIN_URL = reverse_lazy("connexion")
+
+
+
+
+# ................................................. #
+  # Debut de la configuration d'envoies des e-mails
+# ................................................. #
+
+# Chemin de base du projet
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Initialisation de django-environ
+env = environ.Env()
+env.read_env(os.path.join(BASE_DIR, ".env"))
+
+# Emails
+EMAIL_BACKEND = env("EMAIL_BACKEND")
+EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+
+# Gestion des messages d'alerte
+MESSAGE_TAGS = {
+    messages.DEBUG: 'debug',
+    messages.INFO: 'info',
+    messages.WARNING: 'warning',
+    messages.SUCCESS: 'success',
+    messages.ERROR: 'error',
+}
+
+# ................................................. #
+  # Fin de la configuration d'envoies des e-mails
+# ................................................. #
+
+
+
+
+# ................................................. #
+  # Debut de la configuration de django axes
+# ................................................. #
+
+# Gestion de django-axes
+AXES_FAILURE_LIMIT = 3
+AXES_LOCKOUT_PARAMETERS = ['username', 'ip_address']
+AXES_COOLOFF_TIME = datetime.timedelta(minutes=10)
+
+# ................................................. #
+  # Fin de la configuration de django axes
+# ................................................. #
+
+
+
+# ................................................. #
+  # Debut de l'authentification backends
+# ................................................. #
+
+AUTHENTICATION_BACKENDS = [
+    # Gestion de connexion par mail/username/reseau sauciaux
+    'accounts.backends.EmailOrUsernameBackend',
+    # Backend par defaut
+    'django.contrib.auth.backends.ModelBackend',
+    # Backend spécifique à django-axes
+    'axes.backends.AxesStandaloneBackend',
+    # Backend spécifique à allauth
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# ................................................. #
+  # Fin de l'authentification backends
+# ................................................. #
+
+
+
+# ................................................. #
+  # Debut de la configuration de django-allauth
+# ................................................. #
+
+# Redirection direct vers la page google
+# Sans passer par login de allauth
+SOCIALACCOUNT_LOGIN_ON_GET = True  # IMPORTANT : Redirection directe
+SOCIALACCOUNT_STORE_TOKENS = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
+# Redirection après la connexion et la deconnexion
+LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
+SOCIALACCOUNT_LOGIN_REDIRECT_URL = '/'
+
+# Configurations optionnelles d'allauth pour améliorer l'expérience
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+
+# Identification du site
+SITE_ID = 1
+
+# ................................................. #
+  # Fin de la configuration de django-allauth
+# ................................................. #

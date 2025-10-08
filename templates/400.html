@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mauvaise Requête | 400</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/400.css' %}">
+
+</head>
+<body>
+    <!-- Animation d'arrière-plan dynamique -->
+    <div class="bg-animation">
+        <div class="circle" style="width: 250px; height: 250px; top: 15%; left: 10%; animation-delay: 0s;"></div>
+        <div class="circle" style="width: 180px; height: 180px; top: 60%; left: 20%; animation-delay: 2s;"></div>
+        <div class="circle" style="width: 220px; height: 220px; top: 30%; left: 70%; animation-delay: 4s;"></div>
+        <div class="circle" style="width: 140px; height: 140px; top: 75%; left: 80%; animation-delay: 6s;"></div>
+    </div>
+
+    <!-- Contenu principal -->
+    <main class="error-container">
+        <div class="error-content">
+            <span class="material-icons error-icon">report_problem</span>
+            <h1 class="error-title">400</h1>
+            <h2 class="error-subtitle">Mauvaise requête</h2>
+            <p class="error-message">
+                Le serveur n'a pas pu comprendre votre requête en raison d'une syntaxe incorrecte.
+                Vérifiez les informations que vous avez saisies et réessayez.
+            </p>
+            <div class="actions">
+                <a href="/" class="home-btn">
+                    <i class="material-icons">home</i>
+                    Retour à l'accueil
+                </a>
+                <a href="javascript:history.back()" class="secondary-btn">
+                    <i class="material-icons">arrow_back</i>
+                    Page précédente
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="error-footer">
+        <p>© 2023 Votre Entreprise. Tous droits réservés.</p>
+    </footer>
+</body>
+</html>

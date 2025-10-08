@@ -1,0 +1,171 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="fr-FR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ashxpress - Footer avec informations de contact, services, mentions légales et méthodes de paiement sécurisées">
+    <meta name="keywords" content="footer, contact, services, mentions légales, paiement, Ashxpress">
+    <meta name="author" content="Ashxpress">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Preload des polices -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Schema.org for Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Ashxpress",
+      "url": "https://www.ashxpress.com",
+      "logo": "https://www.ashxpress.com{% static 'images/logo.png' %}",
+      "description": "Simplifiez votre shopping. Nous avons sélectionné les meilleurs produits pour vous.",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Agoe-Nyeve",
+        "addressRegion": "Maritime Region",
+        "addressCountry": "TG"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "contact@ashxpress.com",
+        "contactType": "customer service",
+        "availableLanguage": ["French", "English"]
+      },
+      "sameAs": [
+        "https://www.facebook.com/ashxpress",
+        "https://www.youtube.com/ashxpress",
+        "https://www.twitter.com/ashxpress",
+        "https://www.instagram.com/ashxpress",
+        "https://www.linkedin.com/company/ashxpress"
+      ]
+    }
+    </script>
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+
+
+</head>
+<body itemscope itemtype="https://schema.org/WebPage">
+
+    <div id="legal-popup" class="legal-popup">
+        <div class="legal-popup-content">
+            <span class="close-btn" id="close-legal-popup">&times;</span>
+            <h2 id="popup-title"></h2>
+            <div id="popup-content"></div>
+        </div>
+    </div>
+
+    <footer class="footer" role="contentinfo" itemprop="hasPart" itemscope itemtype="https://schema.org/WPFooter">
+
+        <div class="footer-container">
+            <div class="footer-column" itemscope itemtype="https://schema.org/Organization">
+                <h3 itemprop="name">Ashxpress</h3>
+                <p itemprop="description">{% trans "Simplifiez votre shopping. Nous avons sélectionné les meilleurs produits pour vous. Faite vous plaisir, en toute confiance." %}</p>
+                <p><strong itemprop="numberOfEmployees">34 000+</strong> {% trans "clients nous font confiance chaque jour. Rejoignez notre communauté !" %}</p>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/ashxpress" aria-label="Facebook Ashxpress" itemprop="sameAs">
+                        <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://www.youtube.com/ashxpress" aria-label="YouTube Ashxpress" itemprop="sameAs">
+                        <i class="fab fa-youtube" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://www.twitter.com/ashxpress" aria-label="Twitter Ashxpress" itemprop="sameAs">
+                        <i class="fab fa-twitter" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://www.instagram.com/ashxpress" aria-label="Instagram Ashxpress" itemprop="sameAs">
+                        <i class="fab fa-instagram" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/company/ashxpress" aria-label="LinkedIn Ashxpress" itemprop="sameAs">
+                        <i class="fab fa-linkedin-in" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h3>{% trans "Nos services" %}</h3>
+                <a href="/services/#vente" itemprop="significantLink"><i class="fas fa-shopping-cart" aria-hidden="true"></i> {% trans "Vente de produits premium" %}</a>
+                <a href="/services/#livraison" itemprop="significantLink"><i class="fas fa-truck" aria-hidden="true"></i> {% trans "Livraison express" %}</a>
+                <a href="/services/#dropshipping" itemprop="significantLink"><i class="fas fa-boxes" aria-hidden="true"></i> {% trans "Drop shipping" %}</a>
+                <a href="/services/#marketing" itemprop="significantLink"><i class="fas fa-chart-line" aria-hidden="true"></i> {% trans "Marketing digital" %}</a>
+                <a href="/services/#fidelite" itemprop="significantLink"><i class="fas fa-heart" aria-hidden="true"></i> {% trans "Programme fidélité" %}</a>
+            </div>
+
+            <div class="footer-column" id="retour">
+                <h3>Informations légales</h3>
+                {% for page in legal_pages %}
+                    <a href="#" class="legal-link" data-slug="{{ page.slug }}">
+                        <i class="fas fa-file-alt"></i> {{ page.title }}
+                    </a>
+                {% endfor %}
+            </div>
+
+            <script id="legal-data" type="application/json">
+                {
+                {% for page in legal_pages %}
+                    "{{ page.slug }}": {
+                        "title": "{{ page.title|escapejs }}",
+                        "content": "{{ page.content|escapejs }}"
+                    }
+                    {% if not forloop.last %},{% endif %}
+                {% endfor %}
+                }
+            </script>
+            <div class="footer-column" itemscope itemtype="https://schema.org/PostalAddress">
+                <h3>{% trans "Nous contacter" %}</h3>
+                <a href="mailto:serviceclient@ashxpress.com" itemprop="email">
+                    <p><i class="fas fa-envelope" aria-hidden="true"></i> contact@ashxpress.com</p>
+                </a>
+                <p itemprop="streetAddress"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Agoe-Nyeve, <span itemprop="addressRegion">Maritime Region</span>, <span itemprop="addressCountry">Togo</span></p>
+                <p><i class="fas fa-clock" aria-hidden="true"></i> {% trans "Lundi-Vendredi: 9h-18h" %}</p>
+                <p><i class="fas fa-headset" aria-hidden="true"></i> {% trans "Support 24/7 pour les urgences" %}</p>
+            </div>
+        </div>
+
+        <div class="payment-section">
+            <p>{% trans "Méthodes de paiement sécurisées" %}</p>
+            <div class="payment-icons" role="group" aria-label="Méthodes de paiement acceptées">
+                <img src="{% static 'images/VISA.svg' %}" alt="Visa - Paiement par carte Visa" width="40" height="25">
+                <img src="{% static 'images/TMONEY.svg' %}" alt="Tmoney - Paiement mobile Tmoney" width="40" height="25">
+                <img src="{% static 'images/MOOV.svg' %}" alt="Moov - Paiement mobile Moov" width="40" height="25">
+                <img src="{% static 'images/MTN.svg' %}" alt="MTN Mobile Money - Paiement mobile MTN" width="40" height="25">
+            </div>
+        </div>
+
+        <div class="copyright">
+            &copy; 2025 <strong itemprop="copyrightHolder">Ashxpress</strong> - {% trans "Tous droits réservés." %}
+            <meta itemprop="copyrightYear" content="2025">
+        </div>
+    </footer>
+
+    <!-- Schema.org for Breadcrumb -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Accueil",
+          "item": "https://www.ashxpress.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Mentions légales",
+          "item": "https://www.ashxpress.com/legal/"
+        }
+      ]
+    }
+    </script>
+    <script src="{% static 'js/footer.js' %}"></script>
+</body>
+</html>
+
+

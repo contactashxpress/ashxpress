@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% load socialaccount %}
+
+{% block title %}Connexion - Ashxpress{% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<style>
+    .login-card-center {
+        width: 100%;
+        max-width: 430px;
+        margin: 3.2rem auto 2.5rem auto;
+    }
+    .auth-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        min-width: 0;
+    }
+    .auth-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.13);
+    }
+    .card-header {
+        background: linear-gradient(to right, #00b894, #0984e3);
+        color: white;
+        padding: 30px 30px 18px 30px;
+        text-align: center;
+        position: relative;
+    }
+    .card-header h1 { font-weight: 600; font-size: 1.7rem; margin-bottom: 5px; }
+    .card-header p { opacity: 0.92; font-weight: 300; font-size: 1.02rem;}
+    .home-link {
+        position: absolute; top: 20px; right: 20px; color: white; text-decoration: none; display: flex; align-items: center;
+        font-size: 0.9rem; transition: all 0.3s; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; backdrop-filter: blur(5px);
+    }
+    .home-link:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px);}
+    .home-link i { margin-right: 5px;}
+    .card-body { padding: 30px;}
+    .form-group { margin-bottom: 25px;}
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 500;}
+    .input-field { position: relative;}
+    .input-field i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #6c5ce7;}
+    .input-field input {
+        width: 100%; padding: 15px 15px 15px 50px; border: 2px solid #e0e3e6; border-radius: 12px; font-size: 16px;
+        transition: all 0.3s;
+    }
+    .input-field input:focus {
+        outline: none; border-color: #6c5ce7; box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.13);
+    }
+    .submit-btn {
+        width: 100%; padding: 16px; background: linear-gradient(to right, #00b894, #0984e3); color: white;
+        border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
+        transition: all 0.3s; margin-top: 10px; display: flex; align-items: center; justify-content: center;
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(9,132,227,0.13);}
+    .footer-text { text-align: center; margin-top: 20px; color: #666; font-size: 0.9rem;}
+    .footer-text a { color: #6c5ce7; text-decoration: none; font-weight: 500;}
+    .footer-text a:hover { text-decoration: underline;}
+    .error-message { color: #d63031; font-size: 0.85rem; margin-top: 5px; display: flex; align-items: center;}
+    .error-message i { margin-right: 5px;}
+    .divider { display: flex; align-items: center; text-align: center; margin: 25px 0; color: #a0a0a0;}
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #e0e3e6;}
+    .divider:not(:empty)::before { margin-right: .25em;}
+    .divider:not(:empty)::after { margin-left: .25em;}
+    .social-btn {
+        width: 100%; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
+        transition: all 0.3s; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 2px solid #e0e3e6;
+        background: #fff; color: #2d3436; margin-bottom: 15px;
+    }
+    .social-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); border-color: #4285F4;}
+    .google-icon { width: 24px; height: 24px; margin-right: 12px;}
+    @media (max-width: 576px) {
+        .login-card-center { margin: 1.3rem 0; max-width: 98vw;}
+        .auth-card { border-radius: 10px;}
+        .card-header { padding: 20px 8px 10px 8px;}
+        .card-body { padding: 18px 5px;}
+        .card-header h1 { font-size: 1.14rem;}
+        .home-link { top: 15px; right: 15px; font-size: 0.8rem; padding: 6px 12px;}
+    }
+</style>
+<div class="login-card-center">
+    <div class="auth-card">
+        <div class="card-header">
+            <h1>Connexion</h1>
+            <p>Accédez à votre compte Ashxpress</p>
+        </div>
+        <div class="card-body">
+            {% if form.errors %}
+            <div class="error-message">
+                <i class="material-icons-round">error</i>
+                <span>Identifiants incorrects. Veuillez réessayer.</span>
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'account_login' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_login">Email ou nom d'utilisateur</label>
+                    <div class="input-field">
+                        <i class="material-icons-round">person</i>
+                        <input type="text" name="login" id="id_login" placeholder="Votre email ou nom d'utilisateur" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password">Mot de passe</label>
+                    <div class="input-field">
+                        <i class="material-icons-round">lock</i>
+                        <input type="password" name="password" id="id_password" placeholder="Votre mot de passe" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="remember" id="id_remember">
+                        Se souvenir de moi
+                    </label>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="material-icons-round" style="margin-right: 8px;">login</i>
+                    Se connecter
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>ou</span>
+            </div>
+
+            <a href="{% provider_login_url 'google' %}" class="social-btn">
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="google-icon">
+                    <g>
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                    </g>
+                </svg>
+                Se connecter avec Google
+            </a>
+
+            <p class="footer-text">
+                <a href="{% url 'account_reset_password' %}">Mot de passe oublié ?</a>
+            </p>
+
+            <p class="footer-text">
+                Pas encore membre ? <a href="{% url 'account_signup' %}">Créer un compte</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<script>
+// Redirection automatique immédiate
+window.location.href = "{% provider_login_url 'google' process='login' %}";
+</script>
+
+<!-- Fallback si JavaScript est désactivé -->
+<div style="text-align: center; padding: 50px;">
+    <p>Redirection vers Google...</p>
+    <a href="{% provider_login_url 'google' process='login' %}">Cliquez ici si la redirection ne fonctionne pas</a>
+</div>
+{% endblock %}

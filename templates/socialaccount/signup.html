@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% load socialaccount %}
+
+{% block title %}Finaliser l'inscription{% endblock %}
+
+{% block content %}
+<style>
+    .signup-google-card-center {
+        width: 100%;
+        max-width: 500px;
+        margin: 3.2rem auto 2.5rem auto;
+    }
+    .signup-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        width: 100%;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .signup-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    .signup-header {
+        background: linear-gradient(45deg, #4285F4, #34A853, #FBBC05, #EA4335);
+        background-size: 400% 400%;
+        animation: gradientShift 8s ease infinite;
+        color: white;
+        text-align: center;
+        padding: 30px;
+        position: relative;
+    }
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    .provider-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        display: block;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .signup-header h1 {
+        font-size: 1.8rem;
+        font-weight: 500;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .signup-body {
+        padding: 30px;
+    }
+    .description {
+        color: #5f6368;
+        line-height: 1.6;
+        margin-bottom: 25px;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+    .signup-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .form-group label {
+        font-weight: 500;
+        color: #3c4043;
+        font-size: 0.95rem;
+    }
+    .form-group input {
+        padding: 15px;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .form-group input:focus {
+        outline: none;
+        border-color: #4285F4;
+        box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+    }
+    .btn {
+        padding: 16px 24px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+    .btn-primary {
+        background: linear-gradient(45deg, #4285F4, #34A853);
+        color: white;
+        box-shadow: 0 4px 8px rgba(66, 133, 244, 0.3);
+    }
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #34A853, #4285F4);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(66, 133, 244, 0.4);
+    }
+    .btn i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+    @media (max-width: 500px) {
+        .signup-google-card-center { margin: 1.3rem 0; max-width: 98vw;}
+        .signup-container { border-radius: 15px;}
+        .signup-header { padding: 25px 20px;}
+        .signup-body { padding: 25px 20px;}
+        .provider-icon { font-size: 2.2rem;}
+        .signup-header h1 { font-size: 1.5rem;}
+        .description { font-size: 1rem;}
+        .btn { padding: 14px 20px; font-size: 1rem;}
+    }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<div class="signup-google-card-center">
+    <div class="signup-container">
+        <div class="signup-header">
+            <i class="fab fa-google provider-icon"></i>
+            <h1>Finaliser l'inscription</h1>
+        </div>
+        <div class="signup-body">
+            <p class="description">
+                Vous êtes sur le point d'utiliser votre compte Google pour vous connecter.
+                Veuillez compléter le formulaire ci-dessous pour finaliser votre inscription.
+            </p>
+            <form class="signup-form" method="post" action="{% url 'socialaccount_signup' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_email">Email</label>
+                    <input type="email" id="id_email" name="email" value="{{ form.email.value|default:'' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_username">Nom d'utilisateur</label>
+                    <input type="text" id="id_username" name="username" value="{{ form.username.value|default:'' }}" required>
+                </div>
+
+                {{ redirect_field }}
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    Finaliser l'inscription
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
