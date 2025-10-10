@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block title %}{{ product.name }} - {{ product.subname }} | Ashxpress{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/product_detail.css' %}">
+
+
+<div>
+    <div class="product-detail-flex">
+        <div class="product-gallery-panel">
+            <div class="main-image-container">
+                <img id="mainImage" src="{{ product.detail_image.url }}" alt="Image principale de {{ product.name }}" class="main-image" itemprop="image">
+                {% if product.status %}
+                    <span class="badge">{{ product.get_status_display }}</span>
+                {% endif %}
+            </div>
+            <div class="thumbnail-container">
+                <img class="thumbnail active" src="{{ product.detail_image.url }}" onclick="changerImage('{{ product.detail_image.url }}', this)" alt="Vue principale de {{ product.name }}">
+                {% for minimage in product.images.all %}
+                    <img class="thumbnail" src="{{ minimage.miniature.url }}" onclick="changerImage('{{ minimage.image.url }}', this)" alt="{{ minimage.legende|default:product.name }}">
+                {% endfor %}
+            </div>
+
+            <div class="review-container">
+                <h2>{% trans "Avis des clients" %}</h2>
+
+                {% if can_review %}
+                <div class="review-section">
+                    <h3>{% trans "Laissez votre avis" %}</h3>
+                    <p>{% trans "Vous avez acheté ce produit, donnez-nous votre opinion !" %}</p>
+                    <form method="post" class="review-form">
+                        {% csrf_token %}
+                        <label for="id_rating">{% trans "Note" %}</label>
+                        <div class="star-rating-input">
+                            <span class="star" data-value="5">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="1">★</span>
+                        </div>
+                        {{ form.rating }}
+                        <label for="id_comment">{% trans "Commentaire" %}</label>
+                        {{ form.comment }}
+                        <button type="submit" class="btn btn-primary">{% trans "Envoyer l'avis" %}</button>
+                    </form>
+                </div>
+                {% elif has_reviewed %}
+                <div class="review-section">
+                    <p style="text-align: center; padding: 1rem; background: #f0f9ff; border-radius: 0.5rem;">
+                        ✅ {% trans "Vous avez déjà laissé un avis pour ce produit. Merci !" %}
+                    </p>
+                </div>
+                {% elif user.is_authenticated %}
+                <div class="review-section">
+                    <p style="text-align: center; padding: 1rem; background: #fff7ed; border-radius: 0.5rem;">
+                        📦 {% trans "Vous devez acheter et recevoir ce produit pour laisser un avis." %}
+                    </p>
+                </div>
+                {% else %}
+                <div class="review-section">
+                    <p style="text-align: center; padding: 1rem; background: #f0f9ff; border-radius: 0.5rem;">
+                        🔐 <a href="{% url 'connexion' %}" style="color: #2563eb; text-decoration: underline;">{% trans "Connectez-vous" %}</a> {% trans "pour laisser un avis après votre achat." %}
+                    </p>
+                </div>
+                {% endif %}
+
+                <div class="review-section">
+                    <h3>{% trans "Avis des clients" %}</h3>
+                    {% if reviews %}
+                    <div class="review-list-wrapper">
+                        <div class="review-list" id="reviewList">
+                            {% for review in reviews %}
+                            <div class="review-card" itemprop="review" itemscope itemtype="https://schema.org/Review">
+                                <h5 class="review-card-title" itemprop="author" itemscope itemtype="https://schema.org/Person">
+                                    <span itemprop="name">{{ review.user.username }}</span>
+                                </h5>
+                                <div class="star-rating" itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">
+                                    <meta itemprop="ratingValue" content="{{ review.rating }}">
+                                    <meta itemprop="bestRating" content="5">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p class="review-card-text" itemprop="reviewBody">{{ review.comment }}</p>
+                                <small class="review-card-footer" itemprop="datePublished" content="{{ review.created_at|date:'c' }}">{% blocktrans with review_date=review.created_at|date:"d M Y" %}Le {{ review_date }}{% endblocktrans %}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if reviews|length > 1 %}
+                        <div class="review-scroll-controls">
+                            <button class="scroll-btn" onclick="scrollReviews(-300)">←</button>
+                            <button class="scroll-btn" onclick="scrollReviews(300)">→</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="no-reviews">
+                        {% trans "Ce produit n'a pas encore d'avis. Soyez le premier !" %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="product-info-panel">
+            <h1 class="product-title" itemprop="name">{{ product.name }}</h1>
+            <p class="product-subtitle">{{ product.subname }}</p>
+            <div class="product-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                <meta itemprop="priceCurrency" content="XOF">
+                <meta itemprop="price" content="{{ product.current_price }}">
+                <meta itemprop="availability" content="https://schema.org/InStock">
+                <meta itemprop="url" content="https://www.nomboutique.com/produit/{{ product.slug }}/">
+                <span class="current-price">{{ product.current_price }} FCFA</span>
+                {% if product.original_price and product.original_price != product.current_price %}
+                <span class="original-price">{{ product.original_price }} FCFA</span>
+                {% endif %}
+                {% if product.badge %}
+                    <span class="discount">{{ product.badge }}</span>
+                {% endif %}
+            </div>
+            <p class="product-description" itemprop="description">{{ product.description }}</p>
+            <div class="quantity-selector">
+                <form action="#" method="post" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="quantity-btn minus" aria-label="Réduire la quantité">-</button>
+                </form>
+                <input type="number" class="quantity-input" value="1" min="1" max="10" aria-label="Quantité">
+                <form action="{% url 'add_to_cart' product.id %}" method="post" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="quantity-btn plus" aria-label="Augmenter la quantité">+</button>
+                </form>
+            </div>
+            <div class="action-buttons">
+                <form action="{% url 'add_to_cart' product.slug %}" method="post" style="flex-grow: 1;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-shopping-cart" aria-hidden="true"></i> {% trans "Ajouter au panier" %}
+                    </button>
+                </form>
+                <form method="post" action="{% url 'toggle_like' product.slug %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary">
+                        {% if product.is_liked %}
+                        <i class="far fa-heart" aria-hidden="true"></i>
+                        {% endif %}
+                         {% trans "Favoris" %}
+                    </button>
+                </form>
+            </div>
+            <div class="product-features">
+                <h3 class="product-title" style="font-size: 1.2rem;">{% trans "Caractéristiques" %}</h3>
+                {% for feature in product.features.all %}
+                    <div class="feature-item">
+                        <span class="feature-icon">✓</span>
+                        <span>{{ feature.name }} {{ feature.value }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="zoom-overlay">
+    <button class="close-zoom" aria-label="Fermer le zoom">&times;</button>
+    <img src="" alt="{% trans 'Image zoomée' %}" class="zoomed-image">
+</div>
+  {% block extra_js %}
+    <script src="{% static 'js/product_detail.js' %}"></script>
+  {% endblock %}
+
+{% endblock %}

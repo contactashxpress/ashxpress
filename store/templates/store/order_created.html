@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% load static %}
+
+{% block title %}Suivi de Commande #TG01{{ order.id }} | Ashxpress{% endblock %}
+
+{% block content %}
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/order_created.css' %}">
+
+    <div class="order-page-center">
+
+        <header class="order-header">
+            <div class="order-title-wrapper">
+                <div>
+                    <h1 class="order-title" itemprop="name">{% trans "Suivi de Votre Commande" %}</h1>
+                    <p class="order-id">{% trans "Commande" %} #TG01{{ order.id }} • {% trans "Passée le" %} {{ order.created_at }}</p>
+                </div>
+                <div class="order-status status-processing">{{ order.get_status_display }}</div>
+            </div>
+        </header>
+
+        <main class="order-grid" itemprop="mainContentOfPage">
+            <div class="order-card">
+                <h2 class="card-title"><span class="material-icons" aria-hidden="true">person</span> {% trans "Informations client" %}</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">{% trans "Nom complet" %}</div>
+                        <div class="info-value" itemprop="customer" itemscope itemtype="https://schema.org/Person">
+                            <span itemprop="name">{{ order.first_name }} {{ order.last_name }}</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">{% trans "Email" %}</div>
+                        <div class="info-value" itemprop="email">{{ order.email }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">{% trans "Téléphone" %}</div>
+                        <div class="info-value" itemprop="telephone">{{ order.phone }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-card">
+                <h2 class="card-title"><span class="material-icons" aria-hidden="true">local_shipping</span> {% trans "Adresse de livraison" %}</h2>
+                <div class="info-item" itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
+                    <div class="info-value" itemprop="streetAddress">{{ order.address }}</div>
+                    <div class="info-value" itemprop="postalCode">{{ order.postal_code }}</div>
+                    <div class="info-value" itemprop="addressLocality">{{ order.city }}</div>
+                </div>
+            </div>
+        </main>
+
+        <div class="order-card">
+            <h2 class="card-title"><span class="material-icons" aria-hidden="true">history</span> {% trans "Historique de la commande" %}</h2>
+            <div class="timeline">
+                <div class="timeline-step completed">
+                    <div class="timeline-date">{{ order.created_at|date:"d M Y, H:i" }}</div>
+                    <div class="timeline-text">{% trans "Commande passée" %}</div>
+                </div>
+
+                <div class="timeline-step {% if order.paid and order.status != 'canceled' %}completed{% endif %}">
+                    <div class="timeline-date">
+                        {% if order.paid and order.status != 'canceled' %}{{ order.updated_at|date:"d M Y, H:i" }}{% endif %}
+                    </div>
+                    <div class="timeline-text">{% trans "Paiement confirmé" %}</div>
+                </div>
+
+                <div class="timeline-step
+                    {% if order.status == 'processing' %}active
+                    {% elif order.status == 'shipped' or order.status == 'delivered' %}completed
+                    {% endif %}">
+                    <div class="timeline-date">{% if order.status == 'processing' %}{{ order.updated_at|date:"d M Y, H:i" }}{% endif %}</div>
+                    <div class="timeline-text">{% trans "Commande en préparation" %}</div>
+                </div>
+
+                <div class="timeline-step
+                    {% if order.status == 'shipped' %}active
+                    {% elif order.status == 'delivered' %}completed
+                    {% endif %}">
+                    <div class="timeline-text">{% trans "Expédiée" %}</div>
+                </div>
+
+                <div class="timeline-step {% if order.status == 'delivered' %}active{% endif %}">
+                    <div class="timeline-text">{% trans "Livrée" %}</div>
+                </div>
+
+                {% if order.status == 'canceled' %}
+                <div class="timeline-step canceled">
+                    <div class="timeline-date">{{ order.updated_at|date:"d M Y, H:i" }}</div>
+                    <div class="timeline-text">{% trans "Commande annulée" %}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="order-card">
+            <h2 class="card-title"><span class="material-icons" aria-hidden="true">shopping_bag</span> {% trans "Articles commandés" %}</h2>
+            <div class="products-list">
+                {% for item in order.items.all %}
+                <div class="product-item" itemprop="orderedItem" itemscope itemtype="https://schema.org/OrderItem">
+                    <img src="{{ item.product.thumbnail.url }}" alt="{{ item.product.name }}" class="product-image" itemprop="image">
+                    <div class="product-details">
+                        <div class="product-name" itemprop="name">{{ item.product.name }}</div>
+                        <div class="product-price">{{ item.price }} {% trans "fcfa" %}</div>
+                        <div class="product-quantity">{% trans "Quantité" %}: <span itemprop="orderQuantity">{{ item.quantity }}</span></div>
+                    </div>
+                    <div class="product-total">{{ item.get_cost }} {% trans "fcfa" %}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="order-summary" itemprop="paymentDue" content="{{ order.total_paid }}">
+                <div class="summary-row">
+                    <span>{% trans "Sous-total" %}</span>
+                    <span>{{ order.get_subtotal|floatformat:2 }} {% trans "fcfa" %}</span>
+                </div>
+
+                {% if order.promo_code %}
+                <div class="summary-row" style="color: #4cc9f0;">
+                    <span>{% trans "Réduction" %} ({{ order.promo_code.discount_percentage }}%)</span>
+                    <span>-{{ order.get_discount_amount|floatformat:2 }} {% trans "fcfa" %}</span>
+                </div>
+                {% endif %}
+
+                <div class="summary-row">
+                    <span>{% trans "Livraison" %}</span>
+                    <span>{% trans "Standard" %}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>{% trans "Total" %}</span>
+                    <span>{{ order.total_paid|floatformat:2 }} {% trans "fcfa" %}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="window.print()">
+                <span class="material-icons" aria-hidden="true">print</span> {% trans "Imprimer la facture" %}
+            </button>
+
+            <a href="{% url 'index' %}" class="btn btn-outline">
+                <span class="material-icons" aria-hidden="true">home</span> {% trans "Retour à l'accueil" %}
+            </a>
+        </div>
+    </div>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Accueil",
+        "item": "https://www.ashxpress.com/"
+      },{
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Mes commandes",
+        "item": "https://www.ashxpress.com/mes-commandes/"
+      },{
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Suivi commande #TG01{{ order.id }}",
+        "item": "https://www.ashxpress.com/suivi-commande/{{ order.id }}/"
+      }]
+    }
+    </script>
+{% endblock %}

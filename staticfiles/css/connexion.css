@@ -1,0 +1,98 @@
+    body { font-family: 'Poppins', sans-serif; }
+    .connexion-card-center {
+        width: 100%;
+        max-width: 440px;
+        margin: 3rem auto 2.5rem auto;
+    }
+    .password-card {
+        background: #f5f6fa;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1);
+        min-width: 0;
+    }
+    .password-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.16);
+    }
+    .card-header {
+        background: linear-gradient(to right, #6c5ce7, #00cec9);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .card-header h1 { font-weight: 600; font-size: 1.7rem; margin-bottom: 5px; margin-top: 10px;}
+    .card-body { padding: 30px;}
+    .form-group { margin-bottom: 25px;}
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #2d3436;}
+    .input-field { position: relative;}
+    .input-field i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #6c5ce7;}
+    .input-field input {
+        width: 100%; padding: 15px 15px 15px 50px;
+        border: 2px solid #e0e3e6; border-radius: 12px; font-size: 16px;
+        transition: all 0.3s;
+    }
+    .input-field input:focus {
+        outline: none; border-color: #6c5ce7; box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.13);
+    }
+    .remember-me { display: flex; align-items: center;}
+    .checkbox-label {
+        display: flex; align-items: center; cursor: pointer; position: relative; padding-left: 30px;
+    }
+    .remember-me-checkbox { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0;}
+    .checkmark {
+        position: absolute; left: 0; height: 20px; width: 20px; background: white; border: 2px solid #ddd; border-radius: 4px; transition: all 0.3s;
+    }
+    .checkbox-label:hover .checkmark { border-color: #6c5ce7;}
+    .remember-me-checkbox:checked ~ .checkmark { background: #6c5ce7; border-color: #6c5ce7;}
+    .checkmark:after {
+        content: ""; position: absolute; display: none; left: 6px; top: 2px; width: 5px; height: 10px;
+        border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg);
+    }
+    .remember-me-checkbox:checked ~ .checkmark:after { display: block;}
+    .submit-btn {
+        width: 100%; padding: 16px;
+        background: linear-gradient(to right, #6c5ce7, #00cec9); color: white;
+        border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
+        transition: all 0.3s; margin-top: 10px; display: flex; align-items: center; justify-content: center;
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(108,92,231,0.13);}
+    .footer-text { text-align: center; margin-top: 20px; color: #666; font-size: 0.9rem;}
+    .footer-text a { color: #6c5ce7; text-decoration: none; font-weight: 500;}
+    .footer-text a:hover { text-decoration: underline;}
+    .divider { display: flex; align-items: center; text-align: center; margin: 25px 0; color: #a0a0a0;}
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #e0e3e6;}
+    .divider:not(:empty)::before { margin-right: .25em;}
+    .divider:not(:empty)::after { margin-left: .25em;}
+    .social-btn {
+        width: 100%; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
+        transition: all 0.3s; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 2px solid #e0e3e6;
+        background: #fff; color: #2d3436;
+    }
+    .social-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08);}
+    .social-btn.google-btn:hover { border-color: #4285F4;}
+    .google-icon { width: 24px; height: 24px; margin-right: 12px;}
+    .form-messages { position: relative; margin-bottom: 25px;}
+    .alert { padding: 15px 20px; border-radius: 10px; margin-bottom: 15px; display: flex; align-items: center; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.07); opacity: 1; transform: translateY(0); transition: all 0.4s;}
+    .alert.hide { opacity: 0; transform: translateY(-20px); margin-bottom: 0; padding-top: 0; padding-bottom: 0; height: 0;}
+    .alert-success { background: rgba(0,184,148,0.13); border-left: 4px solid #00b894; color: #005b4a;}
+    .alert-error { background: rgba(214,48,49,0.13); border-left: 4px solid #d63031; color: #8a1f1f;}
+    .alert-warning { background: rgba(253,203,110,0.13); border-left: 4px solid #fdcb6e; color: #8a6e1f;}
+    .alert-info { background: rgba(9,132,227,0.13); border-left: 4px solid #0984e3; color: #0a4b7a;}
+    .message-icon { margin-right: 12px; font-size: 22px;}
+    .message-text { flex: 1; font-size: 0.92rem; font-weight: 500;}
+    .close-message { background: none; border: none; font-size: 1.5rem; margin-left: 15px; cursor: pointer; color: inherit; opacity: 0.7; transition: opacity 0.2s; line-height: 1; padding: 0 0 4px 10px;}
+    .close-message:hover { opacity: 1;}
+    .error-message { color: #d63031; font-size: 0.85rem; margin-top: 5px; display: flex; align-items: center;}
+    .error-message i { margin-right: 5px;}
+    @media (max-width: 576px) {
+        .connexion-card-center { margin: 2rem 0; max-width: 98vw;}
+        .password-card { border-radius: 10px;}
+        .card-header { padding: 25px 15px;}
+        .card-body { padding: 20px 10px;}
+        .card-header h1 { font-size: 1.25rem;}
+    }

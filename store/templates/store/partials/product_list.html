@@ -1,0 +1,76 @@
+{% load i18n %}
+{% for product in products %}
+<div class="showcase" itemscope itemtype="https://schema.org/Product">
+
+  <div class="showcase-banner">
+    <img src="{{ product.product_image.url }}" alt="{{ product.name }}" loading="lazy" class="product-img default"
+      width="300" itemprop="image">
+    <a href="{% url 'product' product.slug %}">
+    <img src="{{ product.product_scroll_image.url }}" alt="{{ product.name }}" loading="lazy" class="product-img hover"
+      width="300">
+    </a>
+    {% if product.badge %}
+      <p class="showcase-badge angle pink">{{ product.badge }}</p>
+    {% endif %}
+    <div class="showcase-actions">
+
+      <form method="post" action="{% url 'toggle_like' product.slug %}">
+        {% csrf_token %}
+        <button class="btn-action" aria-label="Ajouter aux favoris">
+        {% if product.is_liked %}
+           <ion-icon name="heart" aria-hidden="true"></ion-icon>
+        {% else %}
+           <ion-icon name="heart-outline" aria-hidden="true"></ion-icon>
+        {% endif %}
+        </button>
+      </form>
+
+      <a href="{% url 'product' product.slug %}">
+      <button class="btn-action" aria-label="Voir le produit">
+        <ion-icon name="eye-outline" aria-hidden="true"></ion-icon>
+      </button>
+      </a>
+
+      <a href="{% url 'add_to_cart' product.slug %}">
+      <button class="btn-action" aria-label="Ajouter au panier">
+        <ion-icon name="bag-add-outline" aria-hidden="true"></ion-icon>
+      </button>
+      </a>
+
+      <a href="{% url 'create_single_product_order' product.slug %}">
+      <button class="btn-action" aria-label="Acheter maintenant">
+        <ion-icon name="card-outline" aria-hidden="true"></ion-icon>
+      </button>
+      </a>
+
+    </div>
+  </div>
+
+  <div class="showcase-content">
+    <a href="#" class="showcase-category">{{ product.name }}</a>
+
+    <h3>
+      <a href="#" class="showcase-title" itemprop="name">{{ product.subname }}</a>
+    </h3>
+
+    <div class="showcase-rating" aria-label="Note: 5 étoiles sur 5">
+      <ion-icon name="star" aria-hidden="true"></ion-icon>
+      <ion-icon name="star" aria-hidden="true"></ion-icon>
+      <ion-icon name="star" aria-hidden="true"></ion-icon>
+      <ion-icon name="star" aria-hidden="true"></ion-icon>
+      <ion-icon name="star" aria-hidden="true"></ion-icon>
+    </div>
+
+    <div class="price-box" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+      <p class="price" itemprop="price">{{ product.current_price }}fcfa</p>
+      <del>{{ product.original_price }}</del>
+    </div>
+
+  </div>
+
+</div>
+{% empty %}
+<div class="signal" role="signal">
+  <p>{% trans "Le produit que vous cherchez est en rupture de stock" %}</p>
+</div>
+{% endfor %}

@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% load static %}
+
+{% block title %}Historique de Commandes | Ashxpress{% endblock %}
+
+{% block content %}
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/order_history.css' %}">
+
+    <div class="order-history-center">
+
+        <header class="page-header">
+            <h1 class="page-title" itemprop="name">{% trans "Historique de Commandes" %}</h1>
+            <div class="filter-controls">
+                <form method="GET" action="{% url 'order_history' %}">
+                    <select class="filter-select" name="status" onchange="this.form.submit()" aria-label="Filtrer par statut">
+                        <option value="all" {% if current_status == 'all' %}selected{% endif %}>{% trans "Tous les statuts" %}</option>
+                        <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>{% trans "En attente" %}</option>
+                        <option value="processing" {% if current_status == 'processing' %}selected{% endif %}>{% trans "En traitement" %}</option>
+                        <option value="shipped" {% if current_status == 'shipped' %}selected{% endif %}>{% trans "Expédiée" %}</option>
+                        <option value="delivered" {% if current_status == 'delivered' %}selected{% endif %}>{% trans "Livrée" %}</option>
+                        <option value="canceled" {% if current_status == 'canceled' %}selected{% endif %}>{% trans "Annulée" %}</option>
+                    </select>
+                    <select class="filter-select" name="date" onchange="this.form.submit()" aria-label="Filtrer par date">
+                        <option value="all" {% if current_date == 'all' %}selected{% endif %}>{% trans "Toutes les dates" %}</option>
+                        <option value="month" {% if current_date == 'month' %}selected{% endif %}>{% trans "Ce mois-ci" %}</option>
+                        <option value="3months" {% if current_date == '3months' %}selected{% endif %}>{% trans "3 derniers mois" %}</option>
+                        <option value="6months" {% if current_date == '6months' %}selected{% endif %}>{% trans "6 derniers mois" %}</option>
+                        <option value="year" {% if current_date == 'year' %}selected{% endif %}>{% trans "Cette année" %}</option>
+                    </select>
+                </form>
+            </div>
+        </header>
+
+        <main class="orders-list" id="orders-container" itemprop="mainContentOfPage">
+            {% if orders %}
+                {% for order in orders %}
+                <article class="order-card" data-order-id="{{ order.id }}" itemscope itemtype="https://schema.org/Order">
+                    <div class="order-card-header">
+                        <div>
+                            <div class="order-id" itemprop="orderNumber">{% trans "Commande" %} #TG01{{ order.id }}</div>
+                            <div class="order-date" itemprop="orderDate" content="{{ order.created_at|date:'c' }}">{% trans "Passée le" %} {{ order.created_at|date:"d M Y" }}</div>
+                        </div>
+                        <div class="order-status status-{{ order.status }}" itemprop="orderStatus" content="https://schema.org/Order{{ order.status|capfirst }}">
+                            {{ order.get_status_display }}
+                        </div>
+                    </div>
+
+                    <div class="order-summary">
+                        <div class="summary-item">
+                            <span class="summary-label">{% trans "Adresse de livraison" %}</span>
+                            <span class="summary-value" itemprop="deliveryAddress" itemscope itemtype="https://schema.org/PostalAddress">
+                                <span itemprop="streetAddress">{{ order.address }}</span>,
+                                <span itemprop="postalCode">{{ order.postal_code }}</span>
+                                <span itemprop="addressLocality">{{ order.city }}</span>
+                            </span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">{% trans "Méthode de paiement" %}</span>
+                            <span class="summary-value">
+                                {% if order.paid %}{% trans "Paiement confirmé" %}{% else %}{% trans "En attente de paiement" %}{% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="order-products">
+                        <div class="product-thumbnails">
+                            {% for item in order.items.all|slice:":3" %}
+                                <img src="{{ item.product.thumbnail.url }}" alt="{{ item.product.name }}" class="product-thumb" itemprop="image">
+                            {% endfor %}
+                        </div>
+                        <div class="product-count">
+                            {{ order.items.count }} {% trans "article" %}{{ order.items.count|pluralize }}
+                        </div>
+                        <div class="order-total" itemprop="price" content="{{ order.get_total }}">
+                            {{ order.get_total }} {% trans "fcfa" %}
+                        </div>
+                    </div>
+
+                    <div class="order-actions">
+                        <a href="{% url 'order_detail' order.id %}" class="btn btn-outline">
+                            <span class="material-icons" aria-hidden="true">visibility</span> {% trans "Voir les détails" %}
+                        </a>
+                    </div>
+                </article>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="material-icons empty-icon" aria-hidden="true">shopping_bag</div>
+                    <h2 class="empty-title">{% trans "Aucune commande trouvée" %}</h2>
+                    <p class="empty-description">{% trans "Vous n'avez pas encore passé de commande ou aucune commande ne correspond à vos filtres." %}</p>
+                    <a href="{% url 'index' %}" class="btn btn-primary">
+                        <span class="material-icons" aria-hidden="true">shopping_cart</span> {% trans "Découvrir nos produits" %}
+                    </a>
+                </div>
+            {% endif %}
+        </main>
+
+        {% if orders.has_other_pages %}
+        <nav class="pagination" aria-label="Pagination">
+            {% if orders.has_previous %}
+                <a href="?page={{ orders.previous_page_number }}{% if current_status != 'all' %}&status={{ current_status }}{% endif %}{% if current_date != 'all' %}&date={{ current_date }}{% endif %}" class="pagination-item" aria-label="Page précédente">&laquo;</a>
+            {% endif %}
+
+            {% for i in orders.paginator.page_range %}
+                {% if orders.number == i %}
+                    <span class="pagination-item active" aria-current="page" aria-label="Page {{ i }}">{{ i }}</span>
+                {% else %}
+                    <a href="?page={{ i }}{% if current_status != 'all' %}&status={{ current_status }}{% endif %}{% if current_date != 'all' %}&date={{ current_date }}{% endif %}" class="pagination-item" aria-label="Page {{ i }}">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if orders.has_next %}
+                <a href="?page={{ orders.next_page_number }}{% if current_status != 'all' %}&status={{ current_status }}{% endif %}{% if current_date != 'all' %}&date={{ current_date }}{% endif %}" class="pagination-item" aria-label="Page suivante">&raquo;</a>
+            {% endif %}
+        </nav>
+        {% endif %}
+    </div>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Accueil",
+        "item": "https://www.ashxpress.com/"
+      },{
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Mes commandes",
+        "item": "https://www.ashxpress.com/mes-commandes/"
+      }]
+    }
+    </script>
+
+{% endblock %}

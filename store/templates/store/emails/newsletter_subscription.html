@@ -1,0 +1,188 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Merci pour votre abonnement !" %}</title>
+    <style>
+        /* Reset CSS pour la compatibilité email */
+        body, table, td, a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+            border-collapse: collapse;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333333;
+        }
+        .header {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        .logo {
+            max-width: 180px;
+            height: auto;
+        }
+        .content {
+            padding: 40px 30px;
+            background: #ffffff;
+            line-height: 1.6;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 25px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666666;
+        }
+        .button {
+            display: inline-block;
+            padding: 14px 28px;
+            background: #4361ee;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .social-links {
+            margin: 20px 0;
+        }
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        .divider {
+            border-top: 1px solid #e5e7eb;
+            margin: 30px 0;
+        }
+        @media only screen and (max-width: 480px) {
+            .container {
+                width: 100% !important;
+            }
+            .content {
+                padding: 20px 15px !important;
+            }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f7fa; color: #333333;">
+    <center>
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#f5f7fa">
+            <tr>
+                <td align="center" style="padding: 40px 0;">
+                    <!-- Container principal -->
+                    <table border="0" cellpadding="0" cellspacing="0" width="600" class="container">
+                        <!-- En-tête avec logo -->
+                        <tr>
+                            <td align="center" class="header">
+                                <img src="#" alt="Ashxpress" class="logo" style="display: block; max-width: 180px;">
+                                <h1 style="color: #ffffff; margin: 20px 0 0 0; font-size: 24px; font-weight: bold;">
+                                    {% trans "Bienvenue chez Ashxpress !" %}
+                                </h1>
+                            </td>
+                        </tr>
+
+                        <!-- Contenu principal -->
+                        <tr>
+                            <td bgcolor="#ffffff" class="content" style="padding: 40px 30px;">
+                                <h2 style="color: #3a0ca3; margin-top: 0; font-size: 20px;">
+                                    {% trans "Confirmation d'abonnement à notre Newsletter" %}
+                                </h2>
+
+                                <p style="margin: 20px 0; font-size: 16px; line-height: 1.6;">
+                                    {% trans "Bonjour," %}
+                                </p>
+
+                                {% blocktrans with email=subscription.email %}
+                                <p style="margin: 20px 0; font-size: 16px; line-height: 1.6;">
+                                    Nous vous confirmons que l'adresse e-mail <strong style="color: #4361ee;">{{ email }}</strong>
+                                    a bien été ajoutée à notre liste de diffusion.
+                                </p>
+                                {% endblocktrans %}
+
+                                <p style="margin: 20px 0; font-size: 16px; line-height: 1.6;">
+                                    {% trans "Préparez-vous à recevoir :" %}
+                                </p>
+
+                                <ul style="margin: 20px 0; padding-left: 20px; font-size: 16px; line-height: 1.8;">
+                                    <li>📧 {% trans "Nos dernières actualités et nouveautés" %}</li>
+                                    <li>🎁 {% trans "Des offres exclusives réservées aux abonnés" %}</li>
+                                    <li>💡 {% trans "Des conseils et astuces shopping" %}</li>
+                                    <li>⚡ {% trans "Des promotions flash en avant-première" %}</li>
+                                </ul>
+
+                                <!-- Bouton CTA -->
+                                <div style="text-align: center; margin: 30px 0;">
+                                    <a href="https://www.ashxpress.com" class="button" style="display: inline-block; padding: 14px 28px; background: #4361ee; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                                        {% trans "Découvrir nos produits" %}
+                                    </a>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <p style="margin: 20px 0; font-size: 14px; color: #666666;">
+                                    {% trans "Si vous n'êtes pas à l'origine de cette inscription, vous pouvez ignorer cet e-mail ou nous contacter à support@ashxpress.com" %}
+                                </p>
+                            </td>
+                        </tr>
+
+                        <!-- Pied de page -->
+                        <tr>
+                            <td bgcolor="#f8f9fa" class="footer" style="padding: 25px 20px;">
+                                <p style="margin: 0 0 15px 0; font-size: 12px; color: #666666;">
+                                    {% trans "Vous recevez cet email parce que vous vous êtes abonné à la newsletter d'Ashxpress" %}
+                                </p>
+
+                                <!-- Liens sociaux -->
+                                <div class="social-links">
+                                    <a href="https://facebook.com/ashxpress" style="color: #4361ee; text-decoration: none; margin: 0 10px;">
+                                        Facebook
+                                    </a> •
+                                    <a href="https://instagram.com/ashxpress" style="color: #4361ee; text-decoration: none; margin: 0 10px;">
+                                        Instagram
+                                    </a> •
+                                    <a href="https://twitter.com/ashxpress" style="color: #4361ee; text-decoration: none; margin: 0 10px;">
+                                        Twitter
+                                    </a>
+                                </div>
+
+                                <p style="margin: 15px 0; font-size: 12px; color: #666666;">
+                                    © {% now "Y" %} Ashxpress. {% trans "Tous droits réservés." %}
+                                </p>
+
+                                <p style="margin: 0; font-size: 11px; color: #999999;">
+                                    <a href="https://www.ashxpress.com/unsubscribe" style="color: #999999; text-decoration: underline;">
+                                        {% trans "Se désabonner" %}
+                                    </a> •
+                                    <a href="https://www.ashxpress.com/confidentialite" style="color: #999999; text-decoration: underline;">
+                                        {% trans "Politique de confidentialité" %}
+                                    </a>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </center>
+</body>
+</html>

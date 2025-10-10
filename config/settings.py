@@ -45,7 +45,7 @@ SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 SITE_URL = 'http://127.0.0.1:8000'
 
 # Application definition
@@ -57,6 +57,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
+    'django_filters',
+    'django_ckeditor_5',
+    'imagekit',
     'accounts',
     # Gestion de django-allauth
     'django.contrib.sites',
@@ -67,6 +71,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     # Gestion de django-axes
     'axes',
+    'mptt',
     'store',
 ]
 
@@ -96,12 +101,19 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Gestion des context_processors personaliser
+                'store.context_processors.global_context',
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+
+# Taille maximale des fichiers uploadés (en bytes) P
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100 Mo
+FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100 Mo
+
 
 
 # Database
@@ -156,20 +168,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Collection des donners static
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "accounts.User"
-#MEDIA_URL = "/media/"
-#MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 # Gestion d'url de retour par @login_required
-#LOGIN_URL = reverse_lazy("connexion")
-
+LOGIN_URL = reverse_lazy("connexion")
 
 
 
@@ -225,7 +239,7 @@ AXES_COOLOFF_TIME = datetime.timedelta(minutes=10)
 
 
 # ................................................. #
-  # Debut de l'authentification backends
+  # Debut de l'authentication backends
 # ................................................. #
 
 AUTHENTICATION_BACKENDS = [
@@ -269,4 +283,42 @@ SITE_ID = 1
 
 # ................................................. #
   # Fin de la configuration de django-allauth
+# ................................................. #
+
+
+
+
+# GESTION DES TAXTS (TVA) - NON APPLICABLE POUR LE MOMENT
+TAX_RATE = Decimal("0.05")
+
+
+
+# ................................................. #
+   # Securiter supplementaire requis en production
+# ................................................. #
+
+# Gestion de niveau de securiter à revoir en production
+SESSION_COOKIE_SECURE = False     # cookies uniquement en HTTPS
+CSRF_COOKIE_SECURE = False
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_HSTS_SECONDS = 0    # HSTS pour forcer HTTPS 31536000
+# SECURE_SSL_REDIRECT = False        # redirige HTTP vers HTTPS
+
+# ................................................. #
+ # Fin Securiter supplementaire requis en production
+# ................................................. #
+
+
+# ................................................. #
+  # Debut de la configuration de Cinetpay
+# ................................................. #
+
+# CinetPay Configuration
+CINETPAY_API_KEY = env("CINETPAY_API_KEY")
+CINETPAY_SITE_ID = env("CINETPAY_SITE_ID")
+CINETPAY_SECRET_KEY = env("CINETPAY_SECRET_KEY")
+
+# ................................................. #
+  # Fin de la configuration de Cinetpay
 # ................................................. #

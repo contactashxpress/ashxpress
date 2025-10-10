@@ -1,0 +1,264 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Confirmation de Commande Ashxpress" %}</title>
+    <style>
+        /* Reset CSS pour la compatibilité email */
+        body, table, td, a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+            border-collapse: collapse;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333333;
+        }
+        .header {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        .logo {
+            max-width: 180px;
+            height: auto;
+        }
+        .content {
+            padding: 40px 30px;
+            background: #ffffff;
+            line-height: 1.6;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 25px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666666;
+        }
+        .order-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #e0f2fe;
+            color: #0369a1;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .product-table th {
+            background: #f3f4f6;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .product-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .total-row {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        .button {
+            display: inline-block;
+            padding: 14px 28px;
+            background: #4361ee;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .info-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        @media only screen and (max-width: 480px) {
+            .container {
+                width: 100% !important;
+            }
+            .content {
+                padding: 20px 15px !important;
+            }
+            .info-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .product-table {
+                font-size: 14px !important;
+            }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f7fa; color: #333333;">
+    <center>
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#f5f7fa">
+            <tr>
+                <td align="center" style="padding: 40px 0;">
+                    <!-- Container principal -->
+                    <table border="0" cellpadding="0" cellspacing="0" width="600" class="container">
+                        <!-- En-tête avec logo -->
+                        <tr>
+                            <td align="center" class="header">
+                                <img src="https://www.ashxpress.com/static/images/logo-email.png" alt="Ashxpress" class="logo" style="display: block; max-width: 180px;">
+                                <h1 style="color: #ffffff; margin: 20px 0 0 0; font-size: 24px; font-weight: bold;">
+                                    {% trans "Confirmation de Commande" %}
+                                </h1>
+                            </td>
+                        </tr>
+
+                        <!-- Contenu principal -->
+                        <tr>
+                            <td bgcolor="#ffffff" class="content" style="padding: 40px 30px;">
+                                <!-- Message de confirmation -->
+                                <h2 style="color: #3a0ca3; margin-top: 0; font-size: 20px;">
+                                    {% blocktrans with first_name=order.first_name %}
+                                    Merci pour votre commande, {{ first_name }} ! 🎉
+                                    {% endblocktrans %}
+                                </h2>
+
+                                <p style="margin: 20px 0; font-size: 16px; line-height: 1.6;">
+                                    {% blocktrans with order_id=order.id %}
+                                    Nous avons bien reçu votre commande <strong style="color: #4361ee;">#TG01{{ order_id }}</strong>.
+                                    Notre équipe la prépare déjà pour l'expédition.
+                                    {% endblocktrans %}
+                                </p>
+
+                                <!-- Badge de statut -->
+                                <div style="text-align: center; margin: 25px 0;">
+                                    <span class="status-badge">{% trans "Commande Confirmée" %}</span>
+                                </div>
+
+                                <!-- Informations de commande -->
+                                <div class="info-grid">
+                                    <div class="info-card">
+                                        <h3 style="margin-top: 0; color: #3a0ca3;">📦 {% trans "Livraison" %}</h3>
+                                        <p style="margin: 10px 0;">
+                                            <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+                                            {{ order.address }}<br>
+                                            {{ order.postal_code }} {{ order.city }}<br>
+                                            📞 {{ order.phone }}
+                                        </p>
+                                    </div>
+
+                                    <div class="info-card">
+                                        <h3 style="margin-top: 0; color: #3a0ca3;">💳 {% trans "Paiement" %}</h3>
+                                        <p style="margin: 10px 0;">
+                                            <strong>{% trans "Méthode:" %}</strong> {% if order.paid %}{% trans "Paiement confirmé" %}{% else %}{% trans "En attente" %}{% endif %}<br>
+                                            <strong>{% trans "Total:" %}</strong> {{ order.total_paid }} €<br>
+                                            <strong>{% trans "Date:" %}</strong> {{ order.created_at|date:"d/m/Y" }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Récapitulatif des produits -->
+                                <h3 style="color: #3a0ca3; margin: 30px 0 20px 0;">🛒 {% trans "Récapitulatif de votre commande" %}</h3>
+
+                                <table class="product-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: left;">{% trans "Produit" %}</th>
+                                            <th style="text-align: center;">{% trans "Quantité" %}</th>
+                                            <th style="text-align: right;">{% trans "Prix" %}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in order.items.all %}
+                                        <tr>
+                                            <td style="text-align: left;">{{ item.product.name }}</td>
+                                            <td style="text-align: center;">{{ item.quantity }}</td>
+                                            <td style="text-align: right;">{{ item.price }} €</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="total-row">
+                                            <td colspan="2" style="text-align: right; padding: 15px;"><strong>{% trans "Total :" %}</strong></td>
+                                            <td style="text-align: right; padding: 15px;"><strong>{{ order.total_paid }} €</strong></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+
+                                <!-- Bouton de suivi -->
+                                <div style="text-align: center; margin: 30px 0;">
+                                    <a href="https://www.ashxpress.com/connexion/{{ order.id }}/" class="button">
+                                        📋 {% trans "Suivre ma commande" %}
+                                    </a>
+                                </div>
+
+                                <!-- Informations de suivi -->
+                                <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; border-left: 4px solid #4361ee;">
+                                    <h4 style="margin-top: 0; color: #0369a1;">ℹ️ {% trans "Prochaines étapes" %}</h4>
+                                    <p style="margin: 10px 0; font-size: 14px;">
+                                        {% trans "Nous vous enverrons un email de confirmation à chaque étape :" %}<br>
+                                        • 📦 {% trans "Préparation de la commande" %}<br>
+                                        • 🚚 {% trans "Expédition" %}<br>
+                                        • 📬 {% trans "Livraison" %}
+                                    </p>
+                                </div>
+
+                                <p style="margin: 25px 0; font-size: 16px; line-height: 1.6;">
+                                    {% trans "Une question concernant votre commande ? Répondez simplement à cet email ou contactez-nous à support@ashxpress.com" %}
+                                </p>
+                            </td>
+                        </tr>
+
+                        <!-- Pied de page -->
+                        <tr>
+                            <td bgcolor="#f8f9fa" class="footer" style="padding: 25px 20px;">
+                                <p style="margin: 0 0 15px 0; font-size: 12px; color: #666666;">
+                                    {% trans "Merci de votre confiance. L'équipe Ashxpress est à votre service !" %}
+                                </p>
+
+                                <p style="margin: 15px 0; font-size: 12px; color: #666666;">
+                                    © {% now "Y" %} Ashxpress. {% trans "Tous droits réservés." %}<br>
+                                    📧 support@ashxpress.com • 📞 +228 99 03 47 47
+                                </p>
+
+                                <p style="margin: 0; font-size: 11px; color: #999999;">
+                                    {% trans "Référence: Commande #TG01" %}{{ order.id }} •
+                                    {{ order.created_at|date:"d/m/Y H:i" }}
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </center>
+</body>
+</html>

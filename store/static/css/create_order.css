@@ -1,0 +1,180 @@
+    :root {
+        --primary: #4f46e5;
+        --primary-hover: #4338ca;
+        --secondary: #f3f4f6;
+        --text: #1f2937;
+        --text-light: #6b7280;
+        --border: #e5e7eb;
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --radius: 12px;
+    }
+    .checkout-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+    .checkout-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text);
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    .checkout-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    @media (min-width: 992px) {
+        .checkout-grid {
+            grid-template-columns: 1fr 1.2fr;
+        }
+    }
+    .summary-card, .form-card {
+        background: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 1.5rem;
+        height: 100%;
+    }
+    .summary-title, .form-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .items-list {
+        margin-bottom: 1.5rem;
+    }
+    .cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+    .item-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .item-quantity {
+        background: var(--secondary);
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .item-name {
+        color: var(--text);
+    }
+    .item-price {
+        font-weight: 600;
+        color: var(--text);
+    }
+    .total-section {
+        margin-top: 1.5rem;
+    }
+    .total-line {
+        height: 1px;
+        background: var(--border);
+        margin-bottom: 1rem;
+    }
+    .total-amount {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.125rem;
+        font-weight: 700;
+    }
+    .price {
+        color: var(--primary);
+    }
+    .modern-form {
+        margin-top: 1rem;
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    @media (min-width: 640px) {
+        .form-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    .form-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--text);
+    }
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.2s;
+        box-sizing: border-box;
+    }
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    }
+    .submit-button {
+        width: 100%;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    .submit-button:hover {
+        background: var(--primary-hover);
+    }
+    @media (max-width: 480px) {
+        .checkout-container {
+            padding: 0 1rem;
+        }
+        .summary-card, .form-card {
+            padding: 1.25rem;
+        }
+        .checkout-title {
+            font-size: 1.75rem;
+        }
+    }
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        color: var(--primary);
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+    .back-button:hover {
+        color: var(--primary-hover);
+    }

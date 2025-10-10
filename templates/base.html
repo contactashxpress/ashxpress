@@ -1,13 +1,993 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr-FR">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %} {% endblock %}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ashxpress - Votre boutique en ligne pour la mode, les bijoux, parfums et produits lifestyle. Livraison rapide et retours faciles.">
+  <meta name="keywords" content="boutique en ligne, mode, vêtements, bijoux, parfums, ecommerce, Ashxpress, shopping en ligne">
+  <meta name="author" content="Ashxpress">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://www.ashxpress.com/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Ashxpress - Boutique en ligne de mode et lifestyle">
+  <meta property="og:description" content="Découvrez notre collection de vêtements, bijoux, parfums et produits lifestyle. Livraison rapide et service client exceptionnel.">
+  <meta property="og:image" content="{% static 'images/og-ashxpress.jpg' %}">
+  <meta property="og:url" content="https://www.ashxpress.com/">
+  <meta property="og:site_name" content="Ashxpress">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Ashxpress - Boutique en ligne de mode et lifestyle">
+  <meta name="twitter:description" content="Découvrez notre collection de vêtements, bijoux, parfums et produits lifestyle.">
+  <meta name="twitter:image" content="{% static 'images/twitter-ashxpress.jpg' %}">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Ashxpress",
+    "url": "https://www.ashxpress.com/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.ashxpress.com/#products?name={search_term_string}",
+      "query-input": "required name=search_term_string"
+    },
+    "description": "Boutique en ligne de mode, bijoux, parfums et produits lifestyle"
+  }
+  </script>
+
+  <title>{% block title %} {% endblock %}</title>
+
+  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+  rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  {% block extra_css %} {% endblock %}
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
 </head>
-<body>
+<body itemscope itemtype="https://schema.org/WebPage">
 
-    {% block content %} {% endblock %}
+  <!--   # MODAL ALERT UNIQUE GLOBAL -->
+  <div id="dynamic-alert-container"></div>
 
-    {% block extra_js %} {% endblock %}
+  <div class="overlay" data-overlay></div>
+
+  <div class="modal closed" data-modal>
+
+    <div class="modal-close-overlay" data-modal-overlay></div>
+
+    <div class="modal-content">
+
+      <button class="modal-close-btn" data-modal-close aria-label="Fermer la newsletter">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+
+      <div class="newsletter-img">
+        <img src="{% static 'images/news_letter.jpg' %}" alt="{% trans 'S\'abonner à la newsletter Ashxpress' %}" width="400" height="400" loading="lazy">
+      </div>
+
+      <div class="newsletter">
+
+        <form action="{% url 'newsletter_subscribe' %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <div class="newsletter-header">
+
+            <h2 class="newsletter-title">{% trans "Abonnez-vous dès maintenant" %}</h2>
+
+            <p class="newsletter-desc">
+              {% blocktrans %}Rejoignez la communauté <strong>Ashxpress</strong> et recevez nos offres exclusives directement dans votre boîte mail.{% endblocktrans %}
+            </p>
+
+          </div>
+
+          <input type="email" name="email" class="email-field" placeholder="{% trans 'Adresse e-mail' %}"  required aria-label="Votre adresse email">
+
+          <button type="submit" class="btn-newsletter">{% trans "S'abonner" %}</button>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="notification-toast" data-toast role="alert" aria-live="polite">
+
+    <button class="toast-close-btn" data-toast-close aria-label="Fermer la notification">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+
+    <div class="toast-banner">
+      <img src="{{ toast.toast_image.url }}" alt="{% trans 'Produit récemment acheté' %}" width="80" height="70" loading="lazy">
+    </div>
+
+    <div class="toast-detail">
+
+      <p class="toast-message">
+        {% trans "Quelqu'un vient d'acheter" %}
+      </p>
+
+      <p class="toast-title">
+        {{ toast.name }}
+      </p>
+
+      <p class="toast-meta">
+        <time datetime="{{ toast.add_date|date:'Y-m-d H:i' }}">{{ toast.add_date|naturaltime }}</time>
+      </p>
+
+    </div>
+
+  </div>
+
+  <header role="banner">
+
+    <div class="header-top">
+      <div class="container">
+        <div class="header-top-actions">
+          <select name="currency" aria-label="Sélectionner la devise">
+            <option value="cfa">FCFA</option>
+            <option value="cedis">CEDIS</option>
+            <option value="usd">USD &dollar;</option>
+            <option value="eur">EUR &euro;</option>
+          </select>
+
+          <form action="#" method="post" class="language-selector">
+            {% csrf_token %}
+            <input name="next" type="hidden" value="{{ request.get_full_path|slice:'3:' }}">
+            <select name="language" onchange="this.form.submit()" aria-label="Sélectionner la langue">
+              {% get_current_language as LANGUAGE_CODE %}
+              {% get_available_languages as LANGUAGES %}
+              {% for lang_code, lang_name in LANGUAGES %}
+                <option value="{{ lang_code }}" {% if lang_code == LANGUAGE_CODE %}selected{% endif %}>
+                  {{ lang_name }}
+                </option>
+              {% endfor %}
+            </select>
+          </form>
+
+        </div>
+        <div class="header-alert-news">
+          <p>
+            {% blocktrans %}<strong>Économisez</strong> jusqu'à 20% sur tous vos achats{% endblocktrans %}
+          </p>
+        </div>
+
+        <div class="header-social-container">
+          <a href="{% url 'order_history' %}" class="social-link">
+            <ion-icon name="card-outline" style="font-size: 1.5rem;" aria-hidden="true"></ion-icon>
+          </a>
+          {% if user.is_authenticated %}
+          <a href="{% url 'password_change' %}" class="social-link">
+            <ion-icon name="construct-outline" style="font-size: 1.5rem;"></ion-icon>
+          </a>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+
+    <div class="header-main">
+      <div class="container">
+
+        <a href="{% url 'index' %}" class="header-logo">
+          <img src="{% static 'images/logo.png' %}" alt="{% trans 'Logo Ashxpress' %}" width="120" height="36" loading="lazy">
+        </a>
+
+        <div class="header-search-container">
+          <form action="#products" method="get" role="search">
+            <input type="search" name="name" class="search-field"
+                   placeholder="{% trans 'Entrez le nom de votre produit...' %}" aria-label="Rechercher un produit">
+            <button class="search-btn" aria-label="Lancer la recherche">
+              <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+            </button>
+          </form>
+        </div>
+
+        <div class="header-user-actions">
+
+          {% if user.is_authenticated %}
+          <a href="{% url 'deconnexion' %}">
+            <button class="action-btn" title="{% trans 'Déconnexion' %}" aria-label="Se déconnecter">
+              <ion-icon name="log-out-outline" aria-hidden="true"></ion-icon>
+            </button>
+          </a>
+          {% else %}
+          <a href="{% url 'connexion' %}">
+            <button class="action-btn" title="{% trans 'Connexion' %}" aria-label="Se connecter">
+              <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
+            </button>
+          </a>
+          {% endif %}
+
+          <button class="action-btn" title="{% trans 'Mes favoris' %}" aria-label="Voir mes favoris">
+            <ion-icon name="heart-outline" aria-hidden="true"></ion-icon>
+            {% if featured_product.is_liked %}
+              <span class="count">{{ featured_product.likes.count }}</span>
+            {% endif %}
+          </button>
+
+          <a href="{% url 'cart' %}">
+            <button class="action-btn" title="{% trans 'Mon panier' %}" aria-label="Voir mon panier">
+              <ion-icon name="bag-handle-outline" aria-hidden="true"></ion-icon>
+              <span class="count" id="cart-counter-desktop" style="display: none;">{{ cart_count }}</span>
+            </button>
+          </a>
+
+        </div>
+      </div>
+    </div>
+
+    <nav class="desktop-navigation-menu" aria-label="Navigation principale">
+      <div class="container">
+        <ul class="desktop-menu-category-list">
+
+          <li class="menu-category">
+            <a href="{% url 'index' %}" class="menu-title">{% trans "Accueil" %}</a>
+          </li>
+
+          <li class="menu-category">
+            <a href="#homme" class="menu-title">{% trans "Mode homme" %}</a>
+          </li>
+
+          <li class="menu-category">
+            <a href="#femme" class="menu-title">{% trans "Mode femme" %}</a>
+          </li>
+
+          <li class="menu-category">
+            <a href="#enfant" class="menu-title">{% trans "Mode enfant" %}</a>
+          </li>
+
+          <li class="menu-category">
+            <a href="#parfum" class="menu-title">{% trans "Beauté et Parfums" %}</a>
+          </li>
+
+          <li class="menu-category">
+            <a href="#autres" class="menu-title">{% trans "Autres" %}</a>
+            <ul class="dropdown-list">
+              <li class="dropdown-item"><a href="#autres-electronique">{% trans "Électronique" %}</a></li>
+              <li class="dropdown-item"><a href="#autres-objets-art-et-statues">{% trans "Objets d'Art & Statues" %}</a></li>
+              <li class="dropdown-item"><a href="#autres-jouets">{% trans "Jouets" %}</a></li>
+              <li class="dropdown-item"><a href="#autres-bebe">{% trans "Bébé" %}</a></li>
+              <li class="dropdown-item"><a href="#autres-sante-et-nutrition">{% trans "Santé et nutrition" %}</a></li>
+              <li class="dropdown-item"><a href="#autres-sports-et-loisirs">{% trans "Sports et loisirs" %}</a></li>
+              <li class="dropdown-item"><a href="#autres-automobile">{% trans "Automobile" %}</a></li>
+              <li class="dropdown-item"><a href="#autres-papeterie-et-livres">{% trans "Papeterie et livres" %}</a></li>
+            </ul>
+          </li>
+
+          <li class="menu-category">
+            <a href="#blogs" class="menu-title">{% trans "Blog" %}</a>
+          </li>
+
+          <li class="menu-category">
+            <a href="#dealoftheday" class="menu-title">{% trans "Offres spéciales" %}</a>
+          </li>
+
+          <li class="menu-category">
+            <a href="#services" class="menu-title">{% trans "Services" %}</a>
+          </li>
+
+        </ul>
+      </div>
+    </nav>
+
+    <div class="mobile-bottom-navigation">
+
+      <button class="action-btn" data-mobile-menu-open-btn aria-label="Ouvrir le menu mobile">
+        <ion-icon name="menu-outline" aria-hidden="true"></ion-icon>
+      </button>
+
+      {% if user.is_authenticated %}
+        <a href="{% url 'deconnexion' %}">
+          <button class="action-btn" aria-label="Se déconnecter">
+            <ion-icon name="log-out-outline" aria-hidden="true"></ion-icon>
+          </button>
+        </a>
+      {% else %}
+        <a href="{% url 'connexion' %}">
+          <button class="action-btn" aria-label="Se connecter">
+            <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
+          </button>
+        </a>
+      {% endif %}
+
+      <a href="{% url 'index' %}">
+        <button class="action-btn" aria-label="Retour à l'accueil">
+          <ion-icon name="home-outline" aria-hidden="true"></ion-icon>
+        </button>
+      </a>
+
+      <a href="{% url 'cart' %}">
+        <button class="action-btn" aria-label="Voir le panier">
+          <ion-icon name="bag-handle-outline" aria-hidden="true"></ion-icon>
+          <span class="count" id="cart-counter-mobile" style="display: none;">{{ cart_count }}</span>
+        </button>
+      </a>
+
+      <button class="action-btn" data-mobile-menu-open-btn aria-label="Ouvrir le menu catégories">
+        <ion-icon name="grid-outline" aria-hidden="true"></ion-icon>
+      </button>
+
+    </div>
+
+    <nav class="mobile-navigation-menu has-scrollbar" data-mobile-menu aria-label="Navigation mobile">
+
+      <div class="menu-top">
+        <h2 class="menu-title">{% trans "Menu" %}</h2>
+
+        <button class="menu-close-btn" data-mobile-menu-close-btn aria-label="Fermer le menu">
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+      </div>
+
+      <ul class="mobile-menu-category-list">
+
+        <li class="menu-category">
+          <a href="{% url 'index' %}" class="menu-title">{% trans "Accueil" %}</a>
+        </li>
+
+        <li class="menu-category">
+          <a href="#homme" class="menu-title">{% trans "Mode homme" %}</a>
+        </li>
+
+        <li class="menu-category">
+          <a href="#femme" class="menu-title">{% trans "Mode femme" %}</a>
+        </li>
+
+        <li class="menu-category">
+          <a href="#enfant" class="menu-title">{% trans "Mode enfant" %}</a>
+        </li>
+
+        <li class="menu-category">
+          <a href="#parfum" class="menu-title">{% trans "Beauté et Parfums" %}</a>
+        </li>
+
+          <li class="menu-category">
+
+            <button class="accordion-menu" data-accordion-btn aria-expanded="false">
+            <p class="menu-title">{% trans "Autres" %}</p>
+
+            <div>
+              <ion-icon name="add-outline" class="add-icon" aria-hidden="true"></ion-icon>
+              <ion-icon name="remove-outline" class="remove-icon" aria-hidden="true"></ion-icon>
+            </div>
+          </button>
+
+            <ul class="submenu-category-list">
+              <li class="submenu-category"><a class="submenu-title" href="#autres-electronique">{% trans "Électronique" %}</a></li>
+              <li class="submenu-category"><a class="submenu-title" href="#autres-objets-art-et-statues">{% trans "Objets d'Art & Statues" %}</a></li>
+              <li class="submenu-category"><a class="submenu-title" href="#autres-jouets">{% trans "Jouets" %}</a></li>
+              <li class="submenu-category"><a class="submenu-title" href="#autres-bebe">{% trans "Bébé" %}</a></li>
+              <li class="submenu-category"><a class="submenu-title" href="#autres-sante-et-nutrition">{% trans "Santé et nutrition" %}</a></li>
+              <li class="submenu-category"><a class="submenu-title" href="#autres-sports-et-loisirs">{% trans "Sports et loisirs" %}</a></li>
+              <li class="submenu-category"><a class="submenu-title" href="#autres-automobile">{% trans "Automobile" %}</a></li>
+              <li class="submenu-category"><a class="submenu-title" href="#autres-papeterie-et-livres">{% trans "Papeterie et livres" %}</a></li>
+            </ul>
+          </li>
+
+        <li class="menu-category">
+          <a href="#blogs" class="menu-title">{% trans "Blog" %}</a>
+        </li>
+
+        <li class="menu-category">
+          <a href="#dealoftheday" class="menu-title">{% trans "Offres spéciales" %}</a>
+        </li>
+
+        <li class="menu-category">
+          <a href="#services" class="menu-title">{% trans "Services" %}</a>
+        </li>
+
+
+
+      </ul>
+
+      <div class="menu-bottom">
+
+        <ul class="menu-category-list">
+
+          <li class="menu-category">
+
+            <button class="accordion-menu" data-accordion-btn aria-expanded="false">
+              <p class="menu-title">{% trans "Langue" %}</p>
+              <ion-icon name="caret-back-outline" class="caret-back" aria-hidden="true"></ion-icon>
+            </button>
+
+            <ul class="submenu-category-list" data-accordion>
+              {% get_current_language as LANGUAGE_CODE %}
+              {% get_available_languages as LANGUAGES %}
+
+              {% for lang_code, lang_name in LANGUAGES %}
+                <li class="submenu-category">
+                  <form action="#" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path|slice:'3:' }}">
+                    <input type="hidden" name="language" value="{{ lang_code }}">
+                    <button type="submit" class="submenu-title {% if lang_code == LANGUAGE_CODE %}active{% endif %}" aria-label="Changer la langue en {{ lang_name }}">
+                      {{ lang_name }}
+                    </button>
+                  </form>
+                </li>
+              {% endfor %}
+            </ul>
+
+          </li>
+
+          <li class="menu-category">
+            <button class="accordion-menu" data-accordion-btn aria-expanded="false">
+              <p class="menu-title">{% trans "Devise" %}</p>
+              <ion-icon name="caret-back-outline" class="caret-back" aria-hidden="true"></ion-icon>
+            </button>
+
+            <ul class="submenu-category-list" data-accordion>
+              <li class="submenu-category">
+                <a href="#currency-fcfa" class="submenu-title">{% trans "FCFA" %}</a>
+              </li>
+
+              <li class="submenu-category">
+                <a href="#currency-cedis" class="submenu-title">{% trans "CEDIS" %}</a>
+              </li>
+
+              <li class="submenu-category">
+                <a href="#currency-usd" class="submenu-title">{% trans "USD $" %}</a>
+              </li>
+
+              <li class="submenu-category">
+                <a href="#currency-eur" class="submenu-title">{% trans "EUR €" %}</a>
+              </li>
+            </ul>
+          </li>
+
+        </ul>
+
+
+        <div class="menu-social-container">
+          <a href="{% url 'order_history' %}" class="social-link">
+            <ion-icon name="card-outline" style="font-size: 1.5rem;" aria-hidden="true"></ion-icon>
+          </a>
+          {% if user.is_authenticated %}
+          <a href="{% url 'password_change' %}" class="social-link">
+            <ion-icon name="construct-outline" style="font-size: 1.5rem;"></ion-icon>
+          </a>
+          {% endif %}
+        </div>
+
+
+      </div>
+
+    </nav>
+
+  </header>
+
+  <main role="main" itemprop="mainContentOfPage">
+
+    <section class="banner" aria-label="Bannières promotionnelles">
+
+      <div class="container">
+
+        <div class="slider-container has-scrollbar">
+
+          {% for banner in banners %}
+          <div class="slider-item">
+
+            <img src="{{ banner.banner_image.url }}" alt="{{ banner.banner_title }} - {{ banner.description }}" class="banner-img" loading="lazy">
+
+            <div class="banner-content">
+
+              <p class="banner-subtitle">{{ banner.banner_title }}</p>
+
+              <h1 class="banner-title" style="color:white;">{{ banner.description }}</h1>
+
+              <p class="banner-text">
+                {% trans "À partir de" %} <b>{{ banner.banner_price }}</b>fcfa
+              </p>
+
+              <a href="#products" class="banner-btn">{% trans "Acheter maintenant" %}</a>
+
+            </div>
+
+          </div>
+          {% endfor %}
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="product-container" aria-label="Produits">
+
+      <div class="container">
+
+        <aside class="sidebar has-scrollbar" data-mobile-menu aria-label="Filtres des produits">
+
+          <div class="sidebar-category">
+
+            <div class="sidebar-top">
+              <h2 class="sidebar-title">{% trans "Catégories" %}</h2>
+
+              <button class="sidebar-close-btn" data-mobile-menu-close-btn aria-label="Fermer les catégories">
+                <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+              </button>
+            </div>
+
+            <ul class="sidebar-menu-category-list">
+              {% for categorie in categories %}
+              <li class="sidebar-menu-category">
+
+                <button class="sidebar-accordion-menu" data-accordion-btn aria-expanded="false">
+
+                  <div class="menu-title-flex">
+                    {% if categorie_image %}
+                    <img src="{{ categorie.category_image.url }}" alt="{{ categorie.name }}" width="20" height="20"
+                      class="menu-title-img" loading="lazy">
+                    {% endif %}
+
+                    <p class="menu-title">{{ categorie.name }}</p>
+                  </div>
+
+                  <div>
+                    <ion-icon name="add-outline" class="add-icon" aria-hidden="true"></ion-icon>
+                    <ion-icon name="remove-outline" class="remove-icon" aria-hidden="true"></ion-icon>
+                  </div>
+
+                </button>
+
+                <ul class="sidebar-submenu-category-list" data-accordion>
+                  {% for child in categorie.get_children %}
+                  <li class="sidebar-submenu-category">
+                    <a href="?category={{ child.slug }}#products" class="sidebar-submenu-title">
+                      <p class="product-name">{{ child.name }}</p>
+                      {% if child.stock %}
+                      <data value="{{ child.stock }}" class="stock" title="{% trans 'Stock disponible' %}">{{ child.stock }}</data>
+                      {% endif %}
+                    </a>
+                  </li>
+                  {% endfor %}
+                </ul>
+
+              </li>
+              {% endfor %}
+            </ul>
+
+          </div>
+
+          <div class="product-showcase">
+
+            <h3 class="showcase-heading">{% trans "Meilleures ventes" %}</h3>
+
+            <div class="showcase-wrapper">
+
+              <div class="showcase-container">
+
+                {% for bestseller in bestsellers %}
+                <div class="showcase" itemscope itemtype="https://schema.org/Product">
+
+                  <a href="#products" class="showcase-img-box">
+                    <img src="{{ bestseller.miniature_bestseller.url }}" alt="{{ bestseller.name }}" width="75" height="75"
+                      class="showcase-img" itemprop="image" loading="lazy">
+                  </a>
+
+                  <div class="showcase-content">
+
+                    <a href="#">
+                      <h4 class="showcase-title" itemprop="name">{{ bestseller.name }}</h4>
+                    </a>
+
+                    <div class="showcase-rating" aria-label="Note: 5 étoiles sur 5">
+                      <ion-icon name="star" aria-hidden="true"></ion-icon>
+                      <ion-icon name="star" aria-hidden="true"></ion-icon>
+                      <ion-icon name="star" aria-hidden="true"></ion-icon>
+                      <ion-icon name="star" aria-hidden="true"></ion-icon>
+                      <ion-icon name="star" aria-hidden="true"></ion-icon>
+                    </div>
+
+                    <div class="price-box" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                      <del>{{ bestseller.original_price }}</del>
+                      <p class="price" itemprop="price">{{ bestseller.current_price }}fcfa</p>
+                    </div>
+
+                  </div>
+
+                </div>
+                {% endfor %}
+              </div>
+
+            </div>
+
+          </div>
+
+        </aside>
+
+        <div class="product-box">
+
+          {% block content %}
+          {% endblock %}
+
+
+        </div>
+      </div>
+    </section>
+
+    <div>
+
+      <div class="container">
+
+        <div class="testimonials-box">
+
+          <section class="testimonial" aria-label="Témoignages">
+
+            <div class="testimonial-card" itemscope itemtype="https://schema.org/Person">
+
+              <img src="{% static 'images/admin.jpg' %}" alt="S. Abdou rahman - Fondateur & CEO Ashxpress" class="testimonial-banner" width="80" height="80" itemprop="image" loading="lazy">
+
+              <p class="testimonial-name" itemprop="name">S. Abdou rahman</p>
+
+              <p class="testimonial-title" itemprop="jobTitle">{% trans "Fondateur & CEO, Ashxpress" %}</p>
+
+              <img src="{% static 'images/quotes.svg' %}" alt="citation" class="quotation-img" width="26" aria-hidden="true" loading="lazy">
+
+              <p class="testimonial-desc" itemprop="description">
+                {% trans "« Passionné par l'innovation et le commerce digital, il a fondé Ashxpress pour offrir une expérience d'achat simple, fiable et accessible à tous. »" %}
+              </p>
+
+            </div>
+
+          </section>
+
+          <section class="cta-container" aria-label="Offre spéciale">
+
+            <img src="{{ cta.cta_banner.url }}" alt="{{ cta.cta_title }}" class="cta-banner" loading="lazy">
+
+            <a href="#products" class="cta-content">
+
+              <p class="discount">{{ cta.cta_discount }}</p>
+
+              <h2 class="cta-title">{{ cta.cta_title }}</h2>
+
+              <p class="cta-text">{% trans "À partir de" %} {{ cta.cta_price }}fcfa</p>
+
+              <button class="cta-btn">{% trans "Acheter maintenant" %}</button>
+
+            </a>
+
+          </section>
+
+          <section id="services" class="service" aria-label="Nos services">
+
+
+            <div class="service-container">
+
+              <a href="#" class="service-item">
+
+                <div class="service-icon">
+                  <ion-icon name="boat-outline" aria-hidden="true"></ion-icon>
+                </div>
+
+                <div class="service-content">
+
+                  <h3 class="service-title">{% trans "Livraison internationale" %}</h3>
+                  <p class="service-desc">{% trans "Pour les commandes de 100 $ et plus" %}</p>
+
+                </div>
+
+              </a>
+
+              <a href="#" class="service-item">
+
+                <div class="service-icon">
+                  <ion-icon name="rocket-outline" aria-hidden="true"></ion-icon>
+                </div>
+
+                <div class="service-content">
+
+                  <h3 class="service-title">{% trans "Livraison immédiate" %}</h3>
+                  <p class="service-desc">{% trans "Disponible uniquement au Togo" %}</p>
+
+                </div>
+
+              </a>
+
+              <a href="tel:+22899034747" class="service-item">
+
+                <div class="service-icon">
+                  <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+                </div>
+
+                <div class="service-content">
+
+                  <h3 class="service-title">{% trans "Support en ligne 24h/24" %}</h3>
+                  <p class="service-desc">{% trans "Notre équipe est disponible de 8h à 23h." %}</p>
+
+                </div>
+
+              </a>
+
+              <a href="#retour" class="service-item">
+
+                <div class="service-icon">
+                  <ion-icon name="arrow-undo-outline" aria-hidden="true"></ion-icon>
+                </div>
+
+                <div class="service-content">
+
+                  <h3 class="service-title">{% trans "Retours faciles et rapides" %}</h3>
+                  <p class="service-desc">{% trans "Politique de retour simplifiée." %}</p>
+
+                </div>
+
+              </a>
+
+              <a href="#" class="service-item">
+
+                <div class="service-icon">
+                  <ion-icon name="ticket-outline" aria-hidden="true"></ion-icon>
+                </div>
+
+                <div class="service-content">
+
+                  <h3 class="service-title">{% trans "Jusqu'à 20% de remise" %}</h3>
+                  <p class="service-desc">{% trans "Pour les commandes de 100 $ ou plus" %}</p>
+
+                </div>
+
+              </a>
+
+            </div>
+
+          </section>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <section id="blogs" class="blog" aria-label="Articles de blog">
+
+      <div class="container">
+
+        <div class="blog-container has-scrollbar">
+
+          {% for blog in blogs %}
+          <article class="blog-card" itemscope itemtype="https://schema.org/BlogPosting">
+
+            <a href="#">
+              <img src="{{ blog.miniature_blog.url }}" alt="{{ blog.name }}" width="300" class="blog-banner" itemprop="image" loading="lazy">
+            </a>
+
+            <div class="blog-content">
+
+              <a href="#" class="blog-category" itemprop="articleSection">{{ blog.name }}</a>
+
+              <a href="#">
+                <h3 class="blog-title" itemprop="headline">{{ blog.description }}</h3>
+              </a>
+              {% if blog.signature %}
+              <p class="blog-meta">
+                <span itemprop="author">{{ blog.signature }}</span>
+              </p>
+              {% endif %}
+            </div>
+
+          </article>
+          {% endfor %}
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Accueil",
+      "item": "https://www.ashxpress.com/"
+    }]
+  }
+  </script>
+
+  <script>
+    'use strict';
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // --- GESTION SÉCURISÉE DU MODAL NEWSLETTER ---
+        const modal = document.querySelector('[data-modal]');
+        if (modal) {
+            const modalCloseBtn = document.querySelector('[data-modal-close]');
+            const modalCloseOverlay = document.querySelector('[data-modal-overlay]');
+
+            const modalCloseFunc = function () {
+                modal.classList.add('closed');
+                localStorage.setItem('newsletterModalClosed', 'true');
+            }
+
+            if(modalCloseOverlay) modalCloseOverlay.addEventListener('click', modalCloseFunc);
+            if(modalCloseBtn) modalCloseBtn.addEventListener('click', modalCloseFunc);
+
+            setTimeout(function() {
+                if (!localStorage.getItem('newsletterModalClosed')) {
+                    modal.classList.remove('closed');
+                }
+            }, 1500);
+        }
+
+        // --- GESTION SÉCURISÉE DU TOAST ---
+        const notificationToast = document.querySelector('[data-toast]');
+        if (notificationToast) {
+            const toastCloseBtn = document.querySelector('[data-toast-close]');
+            if(toastCloseBtn) toastCloseBtn.addEventListener('click', function () {
+                notificationToast.classList.add('closed');
+            });
+        }
+
+        // --- GESTION DU MENU MOBILE (déjà assez robuste, mais unifiée ici) ---
+        const mobileMenuOpenBtn = document.querySelectorAll('[data-mobile-menu-open-btn]');
+        const mobileMenu = document.querySelectorAll('[data-mobile-menu]');
+        const mobileMenuCloseBtn = document.querySelectorAll('[data-mobile-menu-close-btn]');
+        const overlay = document.querySelector('[data-overlay]');
+
+        if (mobileMenuOpenBtn.length > 0 && overlay) {
+            for (let i = 0; i < mobileMenuOpenBtn.length; i++) {
+                const mobileMenuCloseFunc = function () {
+                    if(mobileMenu[i]) mobileMenu[i].classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+                mobileMenuOpenBtn[i].addEventListener('click', function () {
+                    if(mobileMenu[i]) mobileMenu[i].classList.add('active');
+                    overlay.classList.add('active');
+                });
+                if(mobileMenuCloseBtn[i]) mobileMenuCloseBtn[i].addEventListener('click', mobileMenuCloseFunc);
+            }
+            overlay.addEventListener('click', () => {
+                mobileMenu.forEach(menu => menu.classList.remove('active'));
+                overlay.classList.remove('active');
+            });
+        }
+
+        // --- GESTION DE L'ACCORDÉON (déjà robuste) ---
+        const accordionBtn = document.querySelectorAll('[data-accordion-btn]');
+        if (accordionBtn.length > 0) {
+            accordionBtn.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    this.nextElementSibling.classList.toggle('active');
+                    this.classList.toggle('active');
+                });
+            });
+        }
+    });
+</script>
+
+  <!--   # MODAL ALERT UNIQUE GLOBAL -->
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetch("{% url 'api_get_session_data' %}")
+        .then(response => response.json())
+        .then(data => {
+            // --- GESTION DU COMPTEUR DE PANIER (inchangé) ---
+            const cartCount = data.cart_count;
+            const counters = document.querySelectorAll('#cart-counter-desktop, #cart-counter-mobile');
+            counters.forEach(counter => {
+                if (cartCount > 0) {
+                    counter.innerText = cartCount;
+                    counter.style.display = 'inline-block';
+                } else {
+                    counter.style.display = 'none';
+                }
+            });
+
+            // --- GESTION DES MESSAGES (corrigée) ---
+            const messages = data.messages;
+            const alertContainer = document.getElementById('dynamic-alert-container');
+
+            if (messages && messages.length > 0 && alertContainer) {
+                const firstMessage = messages[0];
+                let messageListHtml = '';
+                messages.forEach(msg => {
+                    messageListHtml += `<li class="alert-message-item">${msg.text}</li>`;
+                });
+
+                // ✅ LOGIQUE DE TRADUCTION CORRIGÉE
+                // On prépare les traductions dans un objet
+                const translations = {
+                    success: "{% trans 'Succès' %}",
+                    error: "{% trans 'Erreur' %}",
+                    warning: "{% trans 'Attention' %}",
+                    info: "{% trans 'Information' %}"
+                };
+
+                const getIconHtml = (tags) => {
+                    if (tags.includes('success')) return '<i class="fas fa-check-circle"></i>';
+                    if (tags.includes('error')) return '<i class="fas fa-times-circle"></i>';
+                    if (tags.includes('warning')) return '<i class="fas fa-exclamation-triangle"></i>';
+                    return '<i class="fas fa-info-circle"></i>';
+                };
+
+                // On utilise l'objet de traductions
+                const getTitleText = (tags) => {
+                    if (tags.includes('success')) return translations.success;
+                    if (tags.includes('error')) return translations.error;
+                    if (tags.includes('warning')) return translations.warning;
+                    return translations.info;
+                };
+
+                // Le reste du code est maintenant sûr
+                const modalHtml = `
+                <div class="alert-modal active" id="alertMessageModal" role="alertdialog" aria-modal="true" aria-labelledby="alert-modal-title">
+                    <div class="alert-modal-overlay" id="alertModalOverlay"></div>
+                    <div class="alert-modal-container alert-theme-${firstMessage.tags}">
+                        <div class="alert-modal-header">
+                            <div class="alert-modal-icon">${getIconHtml(firstMessage.tags)}</div>
+                            <h3 class="alert-modal-title" id="alert-modal-title">${getTitleText(firstMessage.tags)}</h3>
+                            <button class="alert-modal-close-btn" id="closeAlertModal" aria-label="{% trans 'Fermer la notification' %}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="alert-modal-body">
+                            <ul class="alert-message-list">${messageListHtml}</ul>
+                        </div>
+                    </div>
+                </div>
+                `;
+
+                alertContainer.innerHTML = modalHtml;
+                initializeModalClosingLogic();
+            }
+
+            function initializeModalClosingLogic() {
+                const alertModal = document.getElementById('alertMessageModal');
+                const alertModalOverlay = document.getElementById('alertModalOverlay');
+                const closeAlertBtn = document.getElementById('closeAlertModal');
+
+                if (!alertModal) return;
+                let alertAutoCloseTimer;
+
+                function closeAlertModal() {
+                    clearTimeout(alertAutoCloseTimer);
+                    alertModal.classList.remove('active');
+                    if (closeAlertBtn) closeAlertBtn.removeEventListener('click', closeAlertModal);
+                    if (alertModalOverlay) alertModalOverlay.removeEventListener('click', closeAlertModal);
+                    document.removeEventListener('keydown', handleAlertEscapeKey);
+                    setTimeout(() => { if (alertContainer) alertContainer.innerHTML = ''; }, 300);
+                }
+
+                function handleAlertEscapeKey(event) {
+                    if (event.key === 'Escape' || event.keyCode === 27) { closeAlertModal(); }
+                }
+
+                alertAutoCloseTimer = setTimeout(closeAlertModal, 7000);
+                if (closeAlertBtn) closeAlertBtn.addEventListener('click', closeAlertModal);
+                if (alertModalOverlay) alertModalOverlay.addEventListener('click', closeAlertModal);
+                document.addEventListener('keydown', handleAlertEscapeKey);
+
+                const alertModalContainer = alertModal.querySelector('.alert-modal-container');
+                if (alertModalContainer) {
+                    alertModalContainer.addEventListener('click', event => event.stopPropagation());
+                }
+            }
+        })
+        .catch(error => console.error('Erreur lors de la récupération du statut de la session:', error));
+});
+</script>
+
+  {% block extra_js %} {% endblock %}
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  {% include "partials/footer.html" %}
 </body>
 </html>
+

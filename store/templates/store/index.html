@@ -1,10 +1,345 @@
-    {% extends 'base.html' %}
-    {% block title %}
-        accueil
-    {% endblock %}
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}
+  Ashxpress - Boutique en ligne de mode, bijoux et parfums
+{% endblock %}
+{% block content %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+<section id="dealoftheday" class="product-featured" aria-label="Offre du jour">
+
+            <div class="showcase-wrapper has-scrollbar">
+
+              {% for promo in promotions %}
+              <div class="showcase-container">
+                <div class="showcase" itemscope itemtype="https://schema.org/Product">
+
+                  <div class="showcase-banner">
+                    <img src="{{ promo.promo_image.url }}" alt="{{ promo.name }}" class="showcase-img" style="border-radius: 12px;" itemprop="image" loading="lazy">
+                  </div>
+
+                  <div class="showcase-content">
+
+                    <div class="showcase-rating" aria-label="Note: 3 étoiles sur 5">
+                      <ion-icon name="star" aria-hidden="true"></ion-icon>
+                      <ion-icon name="star" aria-hidden="true"></ion-icon>
+                      <ion-icon name="star" aria-hidden="true"></ion-icon>
+                      <ion-icon name="star-outline" aria-hidden="true"></ion-icon>
+                      <ion-icon name="star-outline" aria-hidden="true"></ion-icon>
+                    </div>
+
+                    <a href="#">
+                      <h3 class="showcase-title" itemprop="name">{{ promo.name }}</h3>
+                    </a>
+
+                    <p class="showcase-desc" itemprop="description">
+                      {{ promo.description }}
+                    </p>
+
+                    <div class="price-box" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                      <p class="price" itemprop="price">{{ promo.current_price }}fcfa</p>
+                      <del>{{ promo.original_price }}</del>
+                    </div>
+
+                    <a href="#products">
+                    <button class="add-cart-btn">{% trans "ajouter au panier" %}</button>
+                    </a>
+
+                    <div class="showcase-status">
+                      <div class="wrapper">
+                        <p>
+                          {% blocktrans %}déjà vendu: <b>{{ promo.already_sold }}</b>{% endblocktrans %}
+                        </p>
+
+                        <p>
+                          {% trans "disponible:" %} <b>{{ promo.available }}</b>
+                        </p>
+                      </div>
+
+                      <div class="showcase-status-bar"></div>
+                    </div>
+
+                    <div class="countdown-box">
+
+                      <p class="countdown-desc">
+                        {% trans "Dépêchez-vous ! L'offre se termine dans :" %}
+                      </p>
+
+                      <div class="countdown" data-end-date="{{ promo.end_date.isoformat }}" aria-live="polite">
+
+                        <div class="countdown-content">
+                          <p class="display-number days" aria-hidden="true"></p>
+                          <p class="display-text">{% trans "Jours" %}</p>
+                        </div>
+
+                        <div class="countdown-content">
+                          <p class="display-number hours" aria-hidden="true"></p>
+                          <p class="display-text">{% trans "Heures" %}</p>
+                        </div>
+
+                        <div class="countdown-content">
+                          <p class="display-number minutes" aria-hidden="true"></p>
+                          <p class="display-text">{% trans "Min" %}</p>
+                        </div>
+
+                        <div class="countdown-content">
+                          <p class="display-number seconds" aria-hidden="true"></p>
+                          <p class="display-text">{% trans "Sec" %}</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+          </section>
 
 
+<section id="products" class="product-main" aria-label="Nouveaux produits">
 
-    {% block content %}
-        <h1>Bienvenue sur Index</h1>
-    {% endblock %}
+  <div class="product-grid" id="products-container">
+    <!-- Les produits sont chargés ici -->
+    {% include "store/partials/product_list.html" with products=products %}
+  </div>
+
+  <!-- Section de pagination infinie -->
+  <div id="pagination-section">
+    {% if page_obj.has_next %}
+      <div id="load-more-container" class="pagination-loader">
+        <button id="load-more-btn" class="load-more-btn"
+                data-next-page="{{ page_obj.next_page_number }}">
+          {% trans "Charger plus de produits" %}
+        </button>
+      </div>
+    {% else %}
+      <div class="end-message">
+        <p>{% trans "Vous avez vu tous nos produits !" %}</p>
+        <button id="back-to-top" class="load-more-btn">
+          {% trans "Retour en haut" %}
+        </button>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const productsContainer = document.getElementById('products-container');
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    const backToTopBtn = document.getElementById('back-to-top');
+    const paginationSection = document.getElementById('pagination-section');
+
+    let isLoading = false;
+    let currentPage = loadMoreBtn ? parseInt(loadMoreBtn.dataset.nextPage) : 1;
+    let hasMore = {% if page_obj.has_next %}true{% else %}false{% endif %};
+
+    // Fonction pour charger plus de produits
+    async function loadMoreProducts() {
+        if (isLoading || !hasMore) return;
+
+        isLoading = true;
+
+        // Afficher l'indicateur de chargement
+        if (loadMoreBtn) {
+            loadMoreBtn.disabled = true;
+            loadMoreBtn.innerHTML = '{% trans "Chargement..." %}';
+        }
+
+        try {
+            console.log('🔄 Chargement de la page:', currentPage);
+
+            const response = await fetch(`?page=${currentPage}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) throw new Error('Erreur HTTP: ' + response.status);
+
+            const data = await response.json();
+            console.log('✅ Réponse reçue, produits:', data.products_html ? 'oui' : 'non');
+
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            if (!data.products_html) {
+                throw new Error('Aucun contenu HTML reçu');
+            }
+
+            // Créer un élément temporaire pour parser le HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = data.products_html;
+
+            // Vérifier si des produits sont présents
+            const newProducts = tempDiv.querySelectorAll('.showcase');
+            console.log('📦 Produits trouvés:', newProducts.length);
+
+            if (newProducts.length === 0) {
+                hasMore = false;
+                updatePaginationUI();
+                return;
+            }
+
+            // Ajouter les produits avec animation
+            newProducts.forEach((product, index) => {
+                product.style.opacity = '0';
+                product.style.transform = 'translateY(20px)';
+                productsContainer.appendChild(product);
+
+                // Animation d'apparition
+                setTimeout(() => {
+                    product.style.transition = 'all 0.5s ease';
+                    product.style.opacity = '1';
+                    product.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // Mettre à jour l'état de pagination
+            hasMore = data.has_next;
+            currentPage = data.next_page_number;
+
+            console.log('📄 État suivant - a plus:', hasMore, 'prochaine page:', currentPage);
+
+            updatePaginationUI();
+
+        } catch (error) {
+            console.error('❌ Erreur détaillée:', error);
+
+            // Afficher un message d'erreur
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `Erreur de chargement: ${error.message}`;
+            paginationSection.prepend(errorDiv);
+
+            if (loadMoreBtn) {
+                loadMoreBtn.innerHTML = '{% trans "Erreur - Réessayer" %}';
+                loadMoreBtn.disabled = false;
+            }
+        } finally {
+            isLoading = false;
+        }
+    }
+
+    // Mettre à jour l'interface de pagination
+    function updatePaginationUI() {
+        if (!hasMore) {
+            // Plus de produits à charger
+            paginationSection.innerHTML = `
+                <div class="end-message">
+                    <p>{% trans "Vous avez vu tous nos produits !" %}</p>
+                    <button id="back-to-top" class="load-more-btn">
+                        {% trans "Retour en haut" %}
+                    </button>
+                </div>
+            `;
+
+            // Réattacher l'événement au nouveau bouton
+            const newBackToTopBtn = document.getElementById('back-to-top');
+            if (newBackToTopBtn) {
+                newBackToTopBtn.addEventListener('click', () => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+        } else {
+            // Mettre à jour le bouton de chargement
+            if (loadMoreBtn) {
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.innerHTML = '{% trans "Charger plus de produits" %}';
+                loadMoreBtn.dataset.nextPage = currentPage;
+            }
+        }
+    }
+
+    // Chargement au clic sur le bouton
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', loadMoreProducts);
+    }
+
+    // CHANGEMENT IMPORTANT : Auto-chargement immédiat sans attendre le clic
+    function initInfiniteScroll() {
+        if (window.observer) return;
+
+        window.observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && hasMore && !isLoading) {
+                console.log('🔍 Bouton visible, chargement automatique...');
+                loadMoreProducts();
+            }
+        }, {
+            threshold: 0.1,
+            rootMargin: '50px' // Réduit la marge pour un déclenchement plus précis
+        });
+
+        if (loadMoreBtn) {
+            window.observer.observe(loadMoreBtn);
+        }
+    }
+
+    // AUTO-CHARGEMENT IMMÉDIAT : Démarrer l'observation dès le chargement de la page
+    if (loadMoreBtn && hasMore) {
+        console.log('🚀 Activation auto-chargement immédiat');
+        initInfiniteScroll();
+
+        // Également charger automatiquement si le bouton est déjà visible (écran large)
+        setTimeout(() => {
+            const btnRect = loadMoreBtn.getBoundingClientRect();
+            const isVisible = btnRect.top < window.innerHeight && btnRect.bottom >= 0;
+
+            if (isVisible && hasMore && !isLoading) {
+                console.log('📱 Bouton déjà visible, chargement immédiat');
+                loadMoreProducts();
+            }
+        }, 1000);
+    }
+
+    // Retour en haut
+    if (backToTopBtn) {
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    console.log('🚀 Pagination infinie initialisée - Auto-chargement activé');
+});
+</script>
+ <script>
+    const countdowns = document.querySelectorAll(".countdown");
+
+    function updateCountdowns() {
+      const now = new Date().getTime();
+
+      countdowns.forEach(countdown => {
+        const endDate = new Date(countdown.dataset.endDate).getTime();
+        const distance = endDate - now;
+
+        if (distance < 0) {
+          countdown.innerHTML = "<h3>{% trans 'Promotion terminée !' %}</h3>";
+          return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Mise à jour des bons éléments
+        countdown.querySelector(".days").innerText = days;
+        countdown.querySelector(".hours").innerText = String(hours).padStart(2, '0');
+        countdown.querySelector(".minutes").innerText = String(minutes).padStart(2, '0');
+        countdown.querySelector(".seconds").innerText = String(seconds).padStart(2, '0');
+      });
+    }
+
+    setInterval(updateCountdowns, 1000);
+    updateCountdowns();
+  </script>
+{% endblock %}

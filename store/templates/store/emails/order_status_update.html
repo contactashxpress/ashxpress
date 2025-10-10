@@ -1,0 +1,264 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Mise à jour de votre commande Ashxpress" %}</title>
+    <style>
+        /* Reset CSS pour la compatibilité email */
+        body, table, td, a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+            border-collapse: collapse;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333333;
+        }
+        .header {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        .logo {
+            max-width: 180px;
+            height: auto;
+        }
+        .content {
+            padding: 40px 30px;
+            background: #ffffff;
+            line-height: 1.6;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 25px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666666;
+        }
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+            border-left: 4px solid #4361ee;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 15px 0;
+        }
+        .status-processing { background: #e0f2fe; color: #0369a1; }
+        .status-shipped { background: #d1fae5; color: #065f46; }
+        .status-delivered { background: #dcfce7; color: #166534; }
+        .status-canceled { background: #fee2e2; color: #991b1b; }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .info-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .button {
+            display: inline-block;
+            padding: 14px 28px;
+            background: #4361ee;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .timeline {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f0f9ff;
+            border-radius: 8px;
+        }
+        @media only screen and (max-width: 480px) {
+            .container {
+                width: 100% !important;
+            }
+            .content {
+                padding: 20px 15px !important;
+            }
+            .info-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f7fa; color: #333333;">
+    <center>
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#f5f7fa">
+            <tr>
+                <td align="center" style="padding: 40px 0;">
+                    <!-- Container principal -->
+                    <table border="0" cellpadding="0" cellspacing="0" width="600" class="container">
+                        <!-- En-tête avec logo -->
+                        <tr>
+                            <td align="center" class="header">
+                                <img src="https://www.ashxpress.com/static/images/logo-email.png" alt="Ashxpress" class="logo" style="display: block; max-width: 180px;">
+                                <h1 style="color: #ffffff; margin: 20px 0 0 0; font-size: 24px; font-weight: bold;">
+                                    {% trans "Mise à jour de commande" %}
+                                </h1>
+                            </td>
+                        </tr>
+
+                        <!-- Contenu principal -->
+                        <tr>
+                            <td bgcolor="#ffffff" class="content" style="padding: 40px 30px;">
+                                <!-- Salutation personnalisée -->
+                                <h2 style="color: #3a0ca3; margin-top: 0; font-size: 20px;">
+                                    {% blocktrans with first_name=order.first_name %}
+                                    Bonjour {{ first_name }} 👋,
+                                    {% endblocktrans %}
+                                </h2>
+
+                                <p style="margin: 20px 0; font-size: 16px; line-height: 1.6;">
+                                    {% blocktrans with order_id=order.id %}
+                                    Le statut de votre commande <strong style="color: #4361ee;">#TG01{{ order_id }}</strong>
+                                    vient d'être mis à jour.
+                                    {% endblocktrans %}
+                                </p>
+
+                                <!-- Carte de statut -->
+                                <div class="status-card">
+                                    <h3 style="margin: 0 0 15px 0; color: #3a0ca3;">📋 {% trans "Votre commande est:" %}</h3>
+                                    <div class="status-badge status-{{ order.status }}">
+                                        {{ order.get_status_display }}
+                                    </div>
+
+                                    <!-- Message personnalisé selon le statut -->
+                                    {% if order.status == 'processing' %}
+                                    <p style="margin: 15px 0 0 0; font-size: 16px;">
+                                        🛠️ {% trans "Notre équipe prépare votre commande avec soin." %}
+                                    </p>
+                                    {% elif order.status == 'shipped' %}
+                                    <p style="margin: 15px 0 0 0; font-size: 16px;">
+                                        🚚 {% trans "Votre colis est en route ! Vous le recevrez très prochainement." %}
+                                    </p>
+                                    {% elif order.status == 'delivered' %}
+                                    <p style="margin: 15px 0 0 0; font-size: 16px;">
+                                        🎉 {% trans "Votre commande a été livrée ! Nous espérons que vos articles vous plaisent." %}
+                                    </p>
+                                    {% elif order.status == 'canceled' %}
+                                    <p style="margin: 15px 0 0 0; font-size: 16px;">
+                                        ❌ {% trans "Votre commande a été annulée. Notre équipe reste à votre disposition." %}
+                                    </p>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Informations de la commande -->
+                                <div class="info-grid">
+                                    <div class="info-card">
+                                        <h4 style="margin-top: 0; color: #3a0ca3;">📦 {% trans "Détails de livraison" %}</h4>
+                                        <p style="margin: 10px 0; font-size: 14px;">
+                                            {{ order.first_name }} {{ order.last_name }}<br>
+                                            {{ order.address }}<br>
+                                            {{ order.postal_code }} {{ order.city }}
+                                        </p>
+                                    </div>
+
+                                    <div class="info-card">
+                                        <h4 style="margin-top: 0; color: #3a0ca3;">📋 {% trans "Résumé commande" %}</h4>
+                                        <p style="margin: 10px 0; font-size: 14px;">
+                                            <strong>{% trans "Référence:" %}</strong> #TG01{{ order.id }}<br>
+                                            <strong>{% trans "Total:" %}</strong> {{ order.total_paid }} €<br>
+                                            <strong>{% trans "Articles:" %}</strong> {{ order.items.count }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Bouton d'action -->
+                                <div style="text-align: center; margin: 30px 0;">
+                                    <a href="https://www.ashxpress.com/suivi-commande/{{ order.id }}/" class="button">
+                                        🔍 {% trans "Voir le détail de ma commande" %}
+                                    </a>
+                                </div>
+
+                                <!-- Section d'assistance -->
+                                <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                                    <h4 style="margin-top: 0; color: #856404;">❓ {% trans "Besoin d'aide ?" %}</h4>
+                                    <p style="margin: 10px 0; font-size: 14px;">
+                                        {% trans "Notre équipe clientèle est là pour vous aider :" %}<br>
+                                        📧 <strong>support@ashxpress.com</strong><br>
+                                        📞 <strong>+228 99 03 47 47</strong><br>
+                                        🕒 {% trans "Lun-Ven: 9h-18h" %}
+                                    </p>
+                                </div>
+
+                                <!-- Timeline de statut -->
+                                <div class="timeline">
+                                    <h4 style="margin-top: 0; color: #0369a1;">⏱️ {% trans "Prochaines étapes" %}</h4>
+                                    <p style="margin: 10px 0; font-size: 14px;">
+                                        {% if order.status == 'processing' %}
+                                        • 📦 {% trans "Préparation en cours" %}<br>
+                                        • 🚚 {% trans "Expédition sous 24-48h" %}<br>
+                                        • 📬 {% trans "Livraison prévue sous 2-3 jours" %}
+                                        {% elif order.status == 'shipped' %}
+                                        • 📦 {% trans "Colis expédié" %}<br>
+                                        • 📍 {% trans "En transit" %}<br>
+                                        • 📬 {% trans "Livraison imminente" %}
+                                        {% elif order.status == 'delivered' %}
+                                        • ✅ {% trans "Commande livrée" %}<br>
+                                        • ⭐ {% trans "N'hésitez pas à noter vos articles" %}<br>
+                                        • 🔄 {% trans "Pensez à nous re-commander !" %}
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Pied de page -->
+                        <tr>
+                            <td bgcolor="#f8f9fa" class="footer" style="padding: 25px 20px;">
+                                <p style="margin: 0 0 15px 0; font-size: 12px; color: #666666;">
+                                    {% trans "Merci de votre confiance. L'équipe Ashxpress est à votre service !" %}
+                                </p>
+
+                                <p style="margin: 15px 0; font-size: 12px; color: #666666;">
+                                    © {% now "Y" %} Ashxpress. {% trans "Tous droits réservés." %}<br>
+                                    📧 support@ashxpress.com • 📞 +228 99 03 47 47
+                                </p>
+
+                                <p style="margin: 0; font-size: 11px; color: #999999;">
+                                    {% trans "Référence: Commande #TG01" %}{{ order.id }} •
+                                    {{ order.updated_at|date:"d/m/Y H:i" }} •
+                                    <a href="https://www.ashxpress.com/unsubscribe" style="color: #999999; text-decoration: underline;">
+                                        {% trans "Gérer les notifications" %}
+                                    </a>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </center>
+</body>
+</html>

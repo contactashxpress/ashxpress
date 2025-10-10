@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% load static %}
+
+{% block title %}Votre Panier ({{ items|length }} articles) | Ashxpress{% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/cart.css' %}">
+
+<div>
+    <header class="cart-header">
+        <h1 class="cart-title" itemprop="name">{% trans "Votre Panier" %} <span class="cart-count">{{ items|length }} {% trans "articles" %}</span></h1>
+    </header>
+
+    {% if items|length > 0 %}
+    <form method="post" action="{% url 'empty_cart' %}">
+        {% csrf_token %}
+        <button type="submit" class="clear-cart-btn">
+            <span class="material-icons" aria-hidden="true">delete_forever</span>
+            {% trans "Vider tout le panier" %}
+        </button>
+    </form>
+    <div class="cart-main-flex">
+        <section class="cart-list-panel" aria-label="Articles dans le panier">
+            <div class="cart-items-list">
+            {% for item in items %}
+            <div class="cart-item-row" itemscope itemtype="https://schema.org/Product">
+                <img src="{{ item.product.cart_image.url }}" alt="Image du produit {{ item.product.name }}" class="item-image" itemprop="image">
+                <div class="item-details">
+                    <div>
+                        <h2 class="item-title" itemprop="name">{{ item.product.name }}</h2>
+                        <p class="item-description" itemprop="description">{{ item.product.subname }}</p>
+                        <p class="item-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                            <span itemprop="priceCurrency" content="XOF">{{ item.product.current_price }}</span>
+                            <span itemprop="price" content="{{ item.product.current_price }}">{% trans "fcfa" %}</span>
+                        </p>
+                    </div>
+                    <form method="post" action="{% url 'delete_item' item.product_id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="remove-btn">
+                            <span class="material-icons" aria-hidden="true">delete</span> {% trans "Supprimer" %}
+                        </button>
+                    </form>
+                </div>
+                <div class="item-actions">
+                    <div class="quantity-control">
+                        <form method="post" action="{% url 'decrement' item.product.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="quantity-btn" aria-label="Réduire la quantité">-</button>
+                        </form>
+                        <input type="number" value="{{ item.quantity }}" min="1" class="quantity-input" readonly aria-label="Quantité">
+                        <form method="post" action="{% url 'add_to_cart' item.product.slug %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="quantity-btn" aria-label="Augmenter la quantité">+</button>
+                        </form>
+                    </div>
+                    <p class="item-price">{{ item.total_price }} {% trans "fcfa" %}</p>
+                </div>
+            </div>
+            {% endfor %}
+            </div>
+        </section>
+        <aside class="cart-summary-panel" aria-label="Récapitulatif de la commande">
+            <h2 class="summary-title">{% trans "Récapitulatif" %}</h2>
+            <div class="summary-details">
+                <div class="summary-row">
+                    <span class="summary-label">{% trans "Sous-total" %} ({{ items|length }} {% trans "articles" %})</span>
+                    <span class="summary-value">{{ global_price }} {% trans "cfa" %}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">{% trans "Livraison" %}</span>
+                    <span class="summary-value">{% trans "Standard" %}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">{% trans "Réduction" %}</span>
+                    <span class="summary-value">-10% </span>
+                </div>
+            </div>
+            <div class="summary-row summary-total">
+                <span>{% trans "Total" %}</span>
+                <span>{{ global_price }} {% trans "cfa" %}</span>
+            </div>
+            <form action="{% url 'create_order' %}" method="post">
+                {% csrf_token %}
+                <button class="checkout-btn">
+                    <span class="material-icons" style="margin-right: 8px;" aria-hidden="true">lock</span> {% trans "Passer la commande" %}
+                </button>
+            </form>
+            <button class="continue-btn">
+                <a href="{% url 'index' %}">
+                    {% trans "Continuer vos achats" %}
+                </a>
+            </button>
+            <form class="coupon-form" action="{% url 'apply_promo_code' %}" method="post">
+                {% csrf_token %}
+                <label for="promo-code" style="display: none;">Code promo</label>
+                <input type="text" id="promo-code" name="promo_code" placeholder="{% trans 'Code promo' %}" class="coupon-input" value="{{ cart.promo_code.code|default:'' }}">
+                <button type="submit" class="coupon-btn">{% trans "Appliquer" %}</button>
+            </form>
+        </aside>
+    </div>
+    {% else %}
+    <div class="empty-cart-panel">
+        <div class="empty-cart-icon">
+            <span class="material-icons" aria-hidden="true">shopping_cart</span>
+        </div>
+        <h2 class="empty-cart-title">{% trans "Votre panier est vide" %}</h2>
+        <p class="empty-cart-text">{% trans "Parcourez nos catégories pour découvrir nos produits et remplissez votre panier avec vos articles préférés." %}</p>
+        <form action="{% url 'index' %}" method="post">
+            {% csrf_token %}
+            <button class="shop-btn">{% trans "Découvrir nos produits" %}</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+

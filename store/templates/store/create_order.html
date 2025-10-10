@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% load static %}
+
+{% block title %}Finaliser votre commande | Ashxpress{% endblock %}
+
+{% block content %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/create_order.css' %}">
+
+    <div class="checkout-container">
+
+        <h1 class="checkout-title" itemprop="name">{% trans "Finaliser votre commande" %}</h1>
+
+        <main class="checkout-grid" itemprop="mainContentOfPage">
+            <div class="order-summary">
+                <div class="summary-card">
+                    <h2 class="summary-title">
+                        <i class="fas fa-shopping-bag" aria-hidden="true"></i>
+                        {% trans "Résumé de votre commande" %}
+                    </h2>
+
+                    <div class="items-list">
+                        {% if cart %}
+                            {% for item in cart.items.all %}
+                            <div class="cart-item" itemscope itemtype="https://schema.org/Product">
+                                <div class="item-info">
+                                    <span class="item-quantity">{{ item.quantity }}</span>
+                                    <span class="item-name" itemprop="name">{{ item.product.name }}</span>
+                                </div>
+                                <span class="item-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                                    <span itemprop="priceCurrency" content="XOF">{{ item.subtotal }}</span>
+                                    <span itemprop="price" content="{{ item.subtotal }}">{% trans "fcfa" %}</span>
+                                </span>
+                            </div>
+                            {% endfor %}
+
+                        {% elif product %}
+                            <div class="cart-item" itemscope itemtype="https://schema.org/Product">
+                                <div class="item-info">
+                                    <span class="item-quantity">1</span>
+                                    <span class="item-name" itemprop="name">{{ product.name }}</span>
+                                </div>
+                                <span class="item-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                                    <span itemprop="priceCurrency" content="XOF">{{ product.current_price }}</span>
+                                    <span itemprop="price" content="{{ product.current_price }}">{% trans "fcfa" %}</span>
+                                </span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="total-section">
+                        <div class="total-line"></div>
+                        <div class="total-amount">
+                            <span>{% trans "Total:" %}</span>
+                            <span class="price">
+                                {% if cart %}{{ cart.total_price }}{% elif product %}{{ product.current_price }}{% endif %} {% trans "fcfa" %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-form-section">
+                <div class="form-card">
+                    <h2 class="form-title">
+                        <i class="fas fa-user-circle" aria-hidden="true"></i>
+                        {% trans "Vos informations de livraison" %}
+                    </h2>
+
+                    <form method="post" class="modern-form">
+                        {% csrf_token %}
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="{{ form.first_name.id_for_label }}">{% trans "Prénom" %} *</label>
+                                {{ form.first_name }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.last_name.id_for_label }}">{% trans "Nom" %} *</label>
+                                {{ form.last_name }}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.email.id_for_label }}">{% trans "Adresse email" %} *</label>
+                            {{ form.email }}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.phone.id_for_label }}">{% trans "Téléphone" %} *</label>
+                            {{ form.phone }}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.address.id_for_label }}">{% trans "Adresse" %} *</label>
+                            {{ form.address }}
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="{{ form.postal_code.id_for_label }}">{% trans "Code postal" %}</label>
+                                {{ form.postal_code }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.city.id_for_label }}">{% trans "Ville" %} *</label>
+                                {{ form.city }}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-button">
+                            <i class="fas fa-lock" aria-hidden="true"></i>
+                            {% trans "Confirmer et payer" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Accueil",
+        "item": "https://www.ashxpress.com/"
+      },{
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Panier",
+        "item": "https://www.ashxpress.com/panier/"
+      },{
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Commande",
+        "item": "https://www.ashxpress.com/commande/"
+      }]
+    }
+    </script>
+{% endblock %}
